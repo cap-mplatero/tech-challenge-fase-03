@@ -1,7 +1,7 @@
 package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.repositories;
 
+import br.com.fiap.techchallenge.orderservice.application.ports.output.OrderRepository;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Order;
-import br.com.fiap.techchallenge.orderservice.domain.repositories.OrderRepository;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.CustomerEntity;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.MenuItemEntity;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.OrderEntity;
@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,6 +32,21 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     public Optional<Order> findById(Long id) {
         return orderJpaRepository.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public List<Order> findAll() {
+        return orderJpaRepository.findAll()
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Order update(Order order) {
+        OrderEntity entity = toEntity(order);
+        OrderEntity updated = orderJpaRepository.save(entity);
+        return toDomain(updated);
     }
 
     @Override

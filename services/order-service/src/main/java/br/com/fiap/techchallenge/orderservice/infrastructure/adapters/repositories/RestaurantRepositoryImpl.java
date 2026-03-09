@@ -1,13 +1,15 @@
 package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.repositories;
 
+import br.com.fiap.techchallenge.orderservice.application.ports.output.RestaurantRepository;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Restaurant;
-import br.com.fiap.techchallenge.orderservice.domain.repositories.RestaurantRepository;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.RestaurantEntity;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.repositories.RestaurantJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +27,21 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     @Override
     public Optional<Restaurant> findById(Long id) {
         return restaurantJpaRepository.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public List<Restaurant> findAll() {
+        return restaurantJpaRepository.findAll()
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Restaurant update(Restaurant restaurant) {
+        RestaurantEntity entity = toEntity(restaurant);
+        RestaurantEntity updated = restaurantJpaRepository.save(entity);
+        return toDomain(updated);
     }
 
     @Override
