@@ -1,0 +1,20 @@
+meta {
+  name: Update Restaurant
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/restaurants/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Restaurante Italiano Atualizado",
+    "address": "Rua Oscar Freire, 567 - São Paulo, SP",
+    "cuisineType": "Italian"
+  }
+}
+

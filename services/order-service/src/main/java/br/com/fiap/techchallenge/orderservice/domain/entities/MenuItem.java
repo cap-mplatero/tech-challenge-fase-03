@@ -29,6 +29,7 @@ public class MenuItem {
         menuItem.setName(name);
         menuItem.setQuantity(quantity);
         menuItem.setPrice(price);
+        menuItem.setRestaurantId(restaurantId);
 
         return menuItem;
     }

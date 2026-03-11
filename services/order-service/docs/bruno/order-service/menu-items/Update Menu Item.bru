@@ -1,0 +1,21 @@
+meta {
+  name: Update Menu Item
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/menu-items/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "restaurantId": 1,
+    "name": "Margherita Pizza Grande",
+    "quantity": 15,
+    "price": 59.90
+  }
+}
+

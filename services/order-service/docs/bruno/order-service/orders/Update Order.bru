@@ -1,0 +1,21 @@
+meta {
+  name: Update Order
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/orders/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "customerId": 1,
+    "restaurantId": 1,
+    "menuItemIds": [1, 2, 3],
+    "status": "PENDING"
+  }
+}
+
