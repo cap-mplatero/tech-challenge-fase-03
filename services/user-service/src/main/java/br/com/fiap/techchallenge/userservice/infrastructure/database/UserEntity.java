@@ -1,21 +1,33 @@
 package br.com.fiap.techchallenge.userservice.infrastructure.database;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import br.com.fiap.techchallenge.userservice.domain.entities.Role;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     private String name;
+
+    @Column(unique = true, nullable = false)
     private String email;
-    private String username;
+
     private String password;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles;
+
+    private boolean active;
 }
