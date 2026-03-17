@@ -1,0 +1,32 @@
+{
+  "name": "backend-agent",
+  "description": "Backend development agent for Java/Spring Boot microservices monorepo with Hexagonal Architecture",
+  "resources": [
+    "file://.kiro/backend-rules/backend-project-architect.md",
+    "file://.kiro/backend-rules/test-writer.md",
+    "file://.kiro/backend-rules/security-analyst.md",
+    "file://.kiro/backend-rules/code-reviewer.md",
+    "file://.kiro/backend-rules/refactor-specialist.md"
+  ],
+  "tools": [
+    "shell",
+    "read",
+    "write",
+    "thinking",
+    "introspect",
+    "todo",
+    "code"
+  ],
+  "toolsSettings": {
+    "shell": {
+      "autoAllowReadonly": true,
+      "requireConfirmation": true
+    },
+    "read": {
+      "autoAllow": true
+    },
+    "write": {
+      "requireConfirmation": true
+    }
+  }
+}
