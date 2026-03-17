@@ -4,6 +4,7 @@ import br.com.fiap.techchallenge.orderservice.application.dtos.MenuItemDTO;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.MenuItemRepository;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.RestaurantRepository;
 import br.com.fiap.techchallenge.orderservice.domain.entities.MenuItem;
+import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class MenuItemUseCase {
 
     public MenuItemDTO createMenuItem(MenuItemDTO dto) {
         if (!restaurantRepository.existsById(dto.getRestaurantId())) {
-            throw new RuntimeException("Restaurant not found with id: " + dto.getRestaurantId());
+            throw new EntityNotFoundException("Restaurant not found with id: " + dto.getRestaurantId());
         }
 
         MenuItem menuItem = MenuItem.create(dto.getName(), dto.getQuantity(), dto.getPrice(), dto.getRestaurantId());
@@ -42,7 +43,7 @@ public class MenuItemUseCase {
 
     public List<MenuItemDTO> getMenuItemsByRestaurantId(Long restaurantId) {
         if (!restaurantRepository.existsById(restaurantId)) {
-            throw new RuntimeException("Restaurant not found with id: " + restaurantId);
+            throw new EntityNotFoundException("Restaurant not found with id: " + restaurantId);
         }
 
         return menuItemRepository.findByRestaurantId(restaurantId)
@@ -53,10 +54,10 @@ public class MenuItemUseCase {
 
     public MenuItemDTO updateMenuItem(Long id, MenuItemDTO dto) {
         if (!menuItemRepository.existsById(id)) {
-            throw new RuntimeException("Menu item not found with id: " + id);
+            throw new EntityNotFoundException("Menu item not found with id: " + id);
         }
         if (!restaurantRepository.existsById(dto.getRestaurantId())) {
-            throw new RuntimeException("Restaurant not found with id: " + dto.getRestaurantId());
+            throw new EntityNotFoundException("Restaurant not found with id: " + dto.getRestaurantId());
         }
 
         MenuItem menuItem = MenuItem.create(id, dto.getName(), dto.getQuantity(), dto.getPrice(), dto.getRestaurantId());
@@ -66,7 +67,7 @@ public class MenuItemUseCase {
 
     public void deleteMenuItem(Long id) {
         if (!menuItemRepository.existsById(id)) {
-            throw new RuntimeException("Menu item not found with id: " + id);
+            throw new EntityNotFoundException("Menu item not found with id: " + id);
         }
         menuItemRepository.deleteById(id);
     }

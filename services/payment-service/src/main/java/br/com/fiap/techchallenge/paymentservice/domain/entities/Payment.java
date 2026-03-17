@@ -11,15 +11,15 @@ public class Payment {
     private String id;
     private String orderId;
     private String amount;
+    private String status;
 
-    public static Payment create(String id, String orderId, String amount) {
+    public static Payment create(String id, String orderId, String amount, String status) {
         validatePayment(orderId, amount);
-
         Payment payment = new Payment();
         payment.setId(id);
         payment.setOrderId(orderId);
         payment.setAmount(amount);
-
+        payment.setStatus(status);
         return payment;
     }
 

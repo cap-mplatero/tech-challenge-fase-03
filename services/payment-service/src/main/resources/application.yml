@@ -33,6 +33,12 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
+payment:
+  external:
+    url: ${PAYMENT_EXTERNAL_URL:http://localhost:8089/requisicao}
+  retry:
+    interval-ms: ${PAYMENT_RETRY_INTERVAL_MS:60000}
+
 springdoc:
   api-docs:
     path: /api-docs
