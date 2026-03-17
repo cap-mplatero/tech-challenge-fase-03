@@ -1,4 +1,15 @@
-### IntelliJ IDEA ###
+# Kiro
+.kiro/
+
+# Maven
+target/
+
+# Java
+*.class
+
+# IDE
+.idea/
+*.iml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
