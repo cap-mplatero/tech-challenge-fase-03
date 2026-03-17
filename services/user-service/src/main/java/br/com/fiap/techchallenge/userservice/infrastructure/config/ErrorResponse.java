@@ -1,4 +1,4 @@
-package br.com.fiap.techchallenge.orderservice.presentation.dtos;
+package br.com.fiap.techchallenge.userservice.infrastructure.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -14,11 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorResponseDTO {
-
+public class ErrorResponse {
     private int status;
     private String message;
     private LocalDateTime timestamp;
     private List<String> errors;
 }
-

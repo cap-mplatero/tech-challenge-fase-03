@@ -5,13 +5,13 @@ import br.com.fiap.techchallenge.userservice.application.dtos.LoginRequest;
 import br.com.fiap.techchallenge.userservice.application.dtos.RegisterRequest;
 import br.com.fiap.techchallenge.userservice.application.ports.input.AuthUseCase;
 import br.com.fiap.techchallenge.userservice.application.ports.output.JwtPort;
+import br.com.fiap.techchallenge.userservice.application.ports.output.PasswordEncoderPort;
 import br.com.fiap.techchallenge.userservice.application.ports.output.UserRepositoryPort;
 import br.com.fiap.techchallenge.userservice.domain.entities.Role;
 import br.com.fiap.techchallenge.userservice.domain.entities.User;
 import br.com.fiap.techchallenge.userservice.domain.exceptions.EmailAlreadyExistsException;
 import br.com.fiap.techchallenge.userservice.domain.exceptions.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -23,7 +23,7 @@ public class AuthService implements AuthUseCase {
 
     private final UserRepositoryPort userRepository;
     private final JwtPort jwtPort;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderPort passwordEncoder;
 
     @Override
     public AuthResponse register(RegisterRequest request) {

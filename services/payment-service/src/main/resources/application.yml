@@ -33,6 +33,9 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
+jwt:
+  secret: ${JWT_SECRET:dGVjaC1jaGFsbGVuZ2UtZmFzZS0wMy1zZWNyZXQta2V5LWJhc2U2NC1lbmNvZGVk}
+
 payment:
   external:
     url: ${PAYMENT_EXTERNAL_URL:http://localhost:8089/requisicao}

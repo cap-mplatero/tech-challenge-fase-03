@@ -1,8 +1,11 @@
 package br.com.fiap.techchallenge.paymentservice.infrastructure.adapters.external;
 
 import br.com.fiap.techchallenge.paymentservice.application.dtos.ProcessPaymentRequest;
+import br.com.fiap.techchallenge.paymentservice.application.exceptions.FallbackException;
 import br.com.fiap.techchallenge.paymentservice.application.ports.output.ExternalPaymentProcessorClient;
 import br.com.fiap.techchallenge.paymentservice.infrastructure.util.ExternalPaymentProcessorMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,8 @@ public class ExternalPaymentProcessorClientImpl implements ExternalPaymentProces
     }
 
     @Override
+    @CircuitBreaker(name = "externalPaymentProcessor", fallbackMethod = "fallbackProcessPayment")
+    @Retry(name = "externalPaymentProcessor")
     public void processPayment(ProcessPaymentRequest paymentRequest) {
         Map<String, Object> body = ExternalPaymentProcessorMapper.toRequestBody(paymentRequest);
 
@@ -53,5 +58,10 @@ public class ExternalPaymentProcessorClientImpl implements ExternalPaymentProces
         }
 
         throw new RuntimeException("Payment processing failed: response entity is null");
+    }
+
+    public void fallbackProcessPayment(ProcessPaymentRequest paymentRequest, Throwable throwable) {
+        log.error("Fallback triggered for payment {}: {}", paymentRequest.paymentId(), throwable.getMessage());
+        throw new FallbackException(throwable.getMessage());
     }
 }
