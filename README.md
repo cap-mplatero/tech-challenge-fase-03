@@ -1,190 +1,125 @@
-# Tech Challenge Fase 03 - Monorepo
+# Tech Challenge Fase 03
 
-Monorepo contendo os microserviços do sistema de pedidos seguindo **Arquitetura Hexagonal (Ports and Adapters)**.
+Monorepo com 3 microserviços seguindo **Arquitetura Hexagonal (Ports and Adapters)**.
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 tech-challenge-fase-03/
-├── services/                    # Microserviços
-│   ├── user-service/           # Gerenciamento de usuários
-│   ├── order-service/          # Gerenciamento de pedidos
-│   └── payment-service/        # Processamento de pagamentos
-├── packages/                    # Pacotes compartilhados
-│   ├── shared/                 # Código compartilhado entre serviços
-│   └── types/                  # Tipos TypeScript compartilhados
-├── infrastructure/             # Infraestrutura como código
-│   ├── docker/                 # Dockerfiles e docker-compose
-│   ├── kubernetes/             # Manifestos Kubernetes
-│   ├── terraform/              # Provisionamento de infraestrutura
-│   └── scripts/                # Scripts de automação
-├── docs/                       # Documentação
-│   ├── architecture/           # Diagramas e decisões arquiteturais
-│   ├── api/                    # Documentação de APIs
-│   └── diagrams/               # Diagramas do sistema
-└── .github/                    # GitHub Actions workflows
-    └── workflows/
+├── services/
+│   ├── user-service/            # Autenticação e gerenciamento de usuários
+│   ├── order-service/           # Pedidos, clientes, restaurantes, cardápio
+│   └── payment-service/         # Processamento e reprocessamento de pagamentos
+├── infrastructure/
+│   └── scripts/
+│       └── init-databases.sql   # Cria os 3 databases no PostgreSQL
+├── docs/
+│   ├── architecture/            # Decisões arquiteturais
+│   └── api/                     # Documentação de endpoints
+├── docker-compose.yml
+└── .gitignore
 ```
 
-## 🏗️ Arquitetura Hexagonal
+## Arquitetura Hexagonal
 
-Cada microserviço segue a estrutura da Arquitetura Hexagonal:
+Cada serviço segue:
 
 ```
-service/
-├── src/
-│   ├── domain/                 # Camada de Domínio (núcleo)
-│   │   ├── entities/          # Entidades de negócio
-│   │   ├── value-objects/     # Objetos de valor
-│   │   ├── repositories/      # Interfaces de repositórios (ports)
-│   │   └── services/          # Serviços de domínio
-│   ├── application/            # Camada de Aplicação
-│   │   ├── use-cases/         # Casos de uso
-│   │   ├── dtos/              # Data Transfer Objects
-│   │   └── ports/             # Portas de entrada/saída
-│   ├── infrastructure/         # Camada de Infraestrutura (adapters)
-│   │   ├── adapters/
-│   │   │   ├── controllers/   # Controladores HTTP
-│   │   │   ├── repositories/  # Implementação de repositórios
-│   │   │   ├── messaging/     # Mensageria (Kafka, RabbitMQ)
-│   │   │   └── external/      # Integrações externas
-│   │   ├── config/            # Configurações
-│   │   └── database/          # Migrations e seeds
-│   └── presentation/           # Camada de Apresentação
-│       ├── routes/            # Definição de rotas
-│       ├── middlewares/       # Middlewares
-│       └── validators/        # Validadores de entrada
-└── tests/
-    ├── unit/                  # Testes unitários
-    ├── integration/           # Testes de integração
-    └── e2e/                   # Testes end-to-end
+service/src/main/java/.../
+├── domain/                      # Entidades, exceptions (puro, sem Spring)
+├── application/                 # Use cases, DTOs, ports (input/output)
+└── infrastructure/              # Adapters (controllers, repositories, messaging, config)
 ```
 
-## 🎯 Microserviços
+**Regra de dependência:** `infrastructure → application → domain`
 
-### 1. User Service
-Responsável pelo gerenciamento de usuários do sistema.
+## Tecnologias
 
-**Responsabilidades:**
-- Cadastro e autenticação de usuários
-- Gerenciamento de perfis
-- Controle de permissões
+- Java 21 + Spring Boot 3.3.6
+- PostgreSQL 15 (3 databases)
+- Apache Kafka (comunicação assíncrona)
+- Spring Security + JWT
+- Resilience4j (circuit breaker + retry)
+- SpringDoc OpenAPI (Swagger)
+- Docker + Docker Compose
+- Maven
 
-### 2. Order Service
-Responsável pelo gerenciamento de pedidos.
-
-**Responsabilidades:**
-- Criação de pedidos
-- Consulta de pedidos
-- Atualização de status de pedidos
-- Gerenciamento do ciclo de vida do pedido
-
-### 3. Payment Service
-Responsável pelo processamento de pagamentos.
-
-**Responsabilidades:**
-- Processamento de pagamentos
-- Integração com gateways de pagamento
-- Gerenciamento de status de pagamento
-- Reprocessamento automático de pagamentos pendentes
-
-## 🚀 Tecnologias
-
-- **Linguagem:** Java 21
-- **Framework:** Spring Boot 3.3.6
-- **Arquitetura:** Hexagonal (Ports and Adapters)
-- **ORM:** Hibernate (Spring Data JPA)
-- **Documentação API:** Swagger/OpenAPI (SpringDoc)
-- **Comunicação:** REST API + Mensageria (Kafka)
-- **Banco de Dados:** PostgreSQL
-- **Build:** Maven
-- **Containerização:** Docker
-- **Orquestração:** Kubernetes
-- **IaC:** Terraform
-- **CI/CD:** GitHub Actions
-- **Testes:** JUnit 5, Mockito, JaCoCo
-
-## 📋 Requisitos
-
-- Java 21
-- Maven 3.8+
-- Docker >= 20.x
-- Kubernetes >= 1.25
-- Terraform >= 1.5
-- PostgreSQL 15+
-
-## 🛠️ Como Começar
+## Como Rodar
 
 ```bash
-# Clonar o repositório
-git clone <repository-url>
-
-# Configurar variáveis de ambiente
-cp .env.example .env
-
-# Subir ambiente de desenvolvimento com Docker
-docker-compose up -d
-
-# Build de todos os serviços
-mvn clean install
-
-# Executar um serviço específico
-cd services/user-service
-mvn spring-boot:run
-
-# Ou executar todos via Docker Compose
+# Subir tudo (PostgreSQL, Kafka, Zookeeper + 3 serviços)
 docker-compose up --build
+
+# Ou subir só a infra e rodar os serviços localmente
+docker-compose up postgres zookeeper kafka
+cd services/user-service && mvn spring-boot:run
 ```
 
-## 📚 Documentação
+## Serviços e Portas
 
-- [Arquitetura do Sistema](./docs/architecture/README.md)
-- [Documentação de APIs](./docs/api/README.md)
-- [Diagramas](./docs/diagrams/README.md)
+| Serviço | Porta | Swagger |
+|---------|-------|---------|
+| user-service | 8081 | http://localhost:8081/swagger-ui.html |
+| order-service | 8080 | http://localhost:8080/swagger-ui.html |
+| payment-service | 8082 | http://localhost:8082/swagger-ui.html |
 
-## 🧪 Testes
+## Endpoints
 
-```bash
-# Executar todos os testes
-mvn test
+### user-service (`:8081`)
+| Método | Rota | Descrição | Auth |
+|--------|------|-----------|------|
+| POST | `/auth/register` | Registrar usuário | Não |
+| POST | `/auth/login` | Login (retorna JWT) | Não |
+| GET | `/users` | Listar usuários | Sim |
+| GET | `/users/{id}` | Buscar por ID | Sim |
+| PUT | `/users/{id}` | Atualizar usuário | Sim |
+| DELETE | `/users/{id}` | Deletar usuário | Sim |
 
-# Testes com coverage
-mvn clean test jacoco:report
+### order-service (`:8080`)
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/orders` | Criar pedido |
+| GET | `/api/orders` | Listar todos |
+| GET | `/api/orders/{id}` | Buscar por ID |
+| GET | `/api/orders/customer/{id}` | Pedidos por cliente |
+| GET | `/api/orders/status/{status}` | Pedidos por status |
+| GET | `/api/orders/restaurant/{id}` | Pedidos por restaurante |
+| PUT | `/api/orders/{id}` | Atualizar pedido |
+| PATCH | `/api/orders/{id}/status` | Atualizar status |
+| DELETE | `/api/orders/{id}` | Deletar pedido |
+| CRUD | `/api/customers` | Gerenciar clientes |
+| CRUD | `/api/restaurants` | Gerenciar restaurantes |
+| CRUD | `/api/menu-items` | Gerenciar itens do cardápio |
 
-# Ver relatório de coverage
-open target/site/jacoco/index.html
+> Todos os endpoints do order-service requerem JWT (exceto Swagger).
 
-# Executar testes de um serviço específico
-cd services/user-service
-mvn test
+### payment-service (`:8082`)
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/payments` | Processar pagamento |
+
+> Requer JWT. Pagamentos também são processados automaticamente via Kafka.
+
+## Fluxo Kafka
+
+```
+order-service cria pedido → publica "order-created"
+  → payment-service consome → processa pagamento (Resilience4j)
+    → Sucesso: salva APPROVED, publica "payment-result"
+    → Falha: salva PENDING, publica "payment-result"
+      → Scheduler reprocessa PENDING a cada 60s
+        → order-service consome "payment-result" → atualiza status do pedido
 ```
 
-## 📦 Build e Deploy
+## Variáveis de Ambiente
 
-```bash
-# Build de todos os serviços
-mvn clean package
-
-# Build de um serviço específico
-cd services/user-service && mvn clean package
-
-# Gerar imagem Docker
-docker build -t user-service:latest services/user-service
-
-# Deploy para ambiente de desenvolvimento
-kubectl apply -f infrastructure/kubernetes/overlays/dev
-
-# Deploy para produção
-kubectl apply -f infrastructure/kubernetes/overlays/prod
-```
-
-## 🤝 Contribuindo
-
-1. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-2. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-3. Push para a branch (`git push origin feature/AmazingFeature`)
-4. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
+| Variável | Default | Descrição |
+|----------|---------|-----------|
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/{service}_db` | URL do banco |
+| `SPRING_DATASOURCE_USERNAME` | `postgres` | Usuário do banco |
+| `SPRING_DATASOURCE_PASSWORD` | `postgres` | Senha do banco |
+| `KAFKA_BOOTSTRAP_SERVERS` | `localhost:29092` | Endereço do Kafka |
+| `JWT_SECRET` | (base64 default) | Chave secreta JWT (compartilhada entre serviços) |
+| `JWT_EXPIRATION` | `86400000` | Expiração do token (ms) |
+| `PAYMENT_EXTERNAL_URL` | `http://localhost:8089/requisicao` | URL do processador externo |
+| `PAYMENT_RETRY_INTERVAL_MS` | `60000` | Intervalo de reprocessamento (ms) |
