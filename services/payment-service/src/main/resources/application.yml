@@ -1,14 +1,55 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: payment-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/payment_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: payment-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 resilience4j:
   circuitbreaker:
     configs:
       default:
-        registerHealthIndicator: true # Register a health indicator for the circuit breaker in Spring Boot Actuator.
-        slidingWindowSize: 10 # Number of calls to consider when calculating the failure rate. The circuit breaker will evaluate the failure rate based on the last 'slidingWindowSize' calls.
-        minimumNumberOfCalls: 3 # Minimum number of calls to evaluate the failure rate. If the number of calls is less than this value, the circuit breaker will not transition to open state, even if all calls fail.
-        permittedNumberOfCallsInHalfOpenState: 2 # Number of calls that are allowed to pass through when the circuit breaker is in half-open state. If any of these calls fail, the circuit breaker will transition back to open state.
-        automaticTransitionFromOpenToHalfOpenEnabled: true # Enable automatic transition from open to half-open state after the wait duration has passed.
-        waitDurationInOpenState: 20000ms # Time that the circuit breaker should wait before transitioning from open to half-open state. During this time, all calls will be rejected.
-        failureRateThreshold: 50 # Failure rate threshold in percentage. If the failure rate exceeds this threshold, the circuit breaker will transition to open state.
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 20000ms
+        failureRateThreshold: 50
     instances:
       externalPaymentProcessor:
         baseConfig: default
@@ -16,8 +57,8 @@ resilience4j:
   retry:
     configs:
       default:
-        maxAttempts: 3 # Maximum number of retry attempts. The operation will be retried up to this number of times before giving up.
-        waitDuration: 1000ms # Time to wait between retry attempts. This is the duration that the system will wait before making another attempt after a failure.
+        maxAttempts: 3
+        waitDuration: 1000ms
     instances:
       externalPaymentProcessor:
         baseConfig: default

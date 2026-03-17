@@ -1,14 +1,18 @@
 package br.com.fiap.techchallenge.orderservice.application.usecases;
 
+import br.com.fiap.techchallenge.orderservice.application.dtos.OrderCreatedEvent;
 import br.com.fiap.techchallenge.orderservice.application.dtos.OrderDTO;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.CustomerRepository;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.MenuItemRepository;
+import br.com.fiap.techchallenge.orderservice.application.ports.output.OrderEventPublisher;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.OrderRepository;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.RestaurantRepository;
+import br.com.fiap.techchallenge.orderservice.domain.entities.MenuItem;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,10 +20,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderUseCase {
 
+    private static final String PENDING_STATUS = "PENDING";
+
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuItemRepository menuItemRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     public OrderDTO createOrder(OrderDTO dto) {
         validateOrderReferences(dto);
@@ -27,11 +34,21 @@ public class OrderUseCase {
         Order order = Order.create(
                 dto.getCustomerId(),
                 dto.getRestaurantId(),
-                dto.getStatus(),
+                PENDING_STATUS,
                 dto.getMenuItemIds()
         );
 
         Order saved = orderRepository.save(order);
+
+        BigDecimal total = calculateTotal(dto.getMenuItemIds());
+        orderEventPublisher.publishOrderCreated(new OrderCreatedEvent(
+                saved.getId(),
+                saved.getCustomerId(),
+                saved.getRestaurantId(),
+                saved.getMenuItemSet(),
+                total
+        ));
+
         return toDTO(saved);
     }
 
@@ -87,6 +104,18 @@ public class OrderUseCase {
             throw new RuntimeException("Order not found with id: " + id);
         }
         orderRepository.deleteById(id);
+    }
+
+    private BigDecimal calculateTotal(java.util.Set<Long> menuItemIds) {
+        if (menuItemIds == null || menuItemIds.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return menuItemIds.stream()
+                .map(menuItemRepository::findById)
+                .filter(java.util.Optional::isPresent)
+                .map(java.util.Optional::get)
+                .map(MenuItem::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private void validateOrderReferences(OrderDTO dto) {
