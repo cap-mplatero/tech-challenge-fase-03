@@ -36,7 +36,7 @@ public class AuthService implements AuthUseCase {
                 request.name(),
                 request.email(),
                 passwordEncoder.encode(request.password()),
-                Set.of(Role.ROLE_USER),
+                Set.of(Role.valueOf(request.role())),
                 true
         );
 
