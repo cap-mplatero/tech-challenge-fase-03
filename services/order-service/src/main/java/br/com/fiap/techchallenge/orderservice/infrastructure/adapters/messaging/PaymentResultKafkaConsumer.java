@@ -14,13 +14,17 @@ public class PaymentResultKafkaConsumer {
 
     private final OrderUseCase orderUseCase;
 
-    @KafkaListener(topics = "payment-result", groupId = "order-service-group")
-    public void onPaymentResult(PaymentResultEvent event) {
-        log.info("Received payment-result for orderId={} status={}", event.orderId(), event.status());
+    @KafkaListener(topics = "pagamento.aprovado", groupId = "order-service-group")
+    public void onPaymentApproved(PaymentResultEvent event) {
+        log.info("Received pagamento.aprovado for orderId={}", event.orderId());
+        orderUseCase.updateOrderStatus(event.orderId(), "PAGO");
+        log.info("Order {} updated to PAGO", event.orderId());
+    }
 
-        String orderStatus = "APPROVED".equals(event.status()) ? "CONFIRMED" : "PAYMENT_FAILED";
-        orderUseCase.updateOrderStatus(event.orderId(), orderStatus);
-
-        log.info("Order {} updated to {}", event.orderId(), orderStatus);
+    @KafkaListener(topics = "pagamento.pendente", groupId = "order-service-group")
+    public void onPaymentPending(PaymentResultEvent event) {
+        log.info("Received pagamento.pendente for orderId={}", event.orderId());
+        orderUseCase.updateOrderStatus(event.orderId(), "PENDENTE_PAGAMENTO");
+        log.info("Order {} updated to PENDENTE_PAGAMENTO", event.orderId());
     }
 }

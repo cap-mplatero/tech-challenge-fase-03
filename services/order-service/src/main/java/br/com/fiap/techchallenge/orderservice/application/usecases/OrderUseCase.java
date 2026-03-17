@@ -9,6 +9,7 @@ import br.com.fiap.techchallenge.orderservice.application.ports.output.OrderRepo
 import br.com.fiap.techchallenge.orderservice.application.ports.output.RestaurantRepository;
 import br.com.fiap.techchallenge.orderservice.domain.entities.MenuItem;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Order;
+import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderUseCase {
 
-    private static final String PENDING_STATUS = "PENDING";
+    private static final String PENDING_STATUS = "AGUARDANDO_PAGAMENTO";
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
@@ -67,7 +68,7 @@ public class OrderUseCase {
 
     public OrderDTO updateOrder(Long id, OrderDTO dto) {
         if (!orderRepository.existsById(id)) {
-            throw new RuntimeException("Order not found with id: " + id);
+            throw new EntityNotFoundException("Order not found with id: " + id);
         }
         validateOrderReferences(dto);
 
@@ -99,9 +100,21 @@ public class OrderUseCase {
         return toDTO(saved);
     }
 
+    public List<OrderDTO> getOrdersByCustomerId(Long customerId) {
+        return orderRepository.findByCustomerId(customerId).stream().map(this::toDTO).toList();
+    }
+
+    public List<OrderDTO> getOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status).stream().map(this::toDTO).toList();
+    }
+
+    public List<OrderDTO> getOrdersByRestaurantId(Long restaurantId) {
+        return orderRepository.findByRestaurantId(restaurantId).stream().map(this::toDTO).toList();
+    }
+
     public void deleteOrder(Long id) {
         if (!orderRepository.existsById(id)) {
-            throw new RuntimeException("Order not found with id: " + id);
+            throw new EntityNotFoundException("Order not found with id: " + id);
         }
         orderRepository.deleteById(id);
     }
@@ -120,15 +133,15 @@ public class OrderUseCase {
 
     private void validateOrderReferences(OrderDTO dto) {
         if (!customerRepository.existsById(dto.getCustomerId())) {
-            throw new RuntimeException("Customer not found with id: " + dto.getCustomerId());
+            throw new EntityNotFoundException("Customer not found with id: " + dto.getCustomerId());
         }
         if (!restaurantRepository.existsById(dto.getRestaurantId())) {
-            throw new RuntimeException("Restaurant not found with id: " + dto.getRestaurantId());
+            throw new EntityNotFoundException("Restaurant not found with id: " + dto.getRestaurantId());
         }
         if (dto.getMenuItemIds() != null) {
             for (Long menuItemId : dto.getMenuItemIds()) {
                 if (!menuItemRepository.existsById(menuItemId)) {
-                    throw new RuntimeException("Menu item not found with id: " + menuItemId);
+                    throw new EntityNotFoundException("Menu item not found with id: " + menuItemId);
                 }
             }
         }

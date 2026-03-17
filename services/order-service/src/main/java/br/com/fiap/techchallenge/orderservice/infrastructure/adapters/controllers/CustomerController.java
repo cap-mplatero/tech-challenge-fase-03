@@ -1,4 +1,4 @@
-package br.com.fiap.techchallenge.orderservice.presentation.routes;
+package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.controllers;
 
 import br.com.fiap.techchallenge.orderservice.application.dtos.CustomerDTO;
 import br.com.fiap.techchallenge.orderservice.application.usecases.CustomerUseCase;

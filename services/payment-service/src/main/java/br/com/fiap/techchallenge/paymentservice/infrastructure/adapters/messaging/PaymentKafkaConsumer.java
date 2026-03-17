@@ -4,7 +4,9 @@ import br.com.fiap.techchallenge.paymentservice.application.dtos.OrderCreatedEve
 import br.com.fiap.techchallenge.paymentservice.application.dtos.PaymentResultEvent;
 import br.com.fiap.techchallenge.paymentservice.application.dtos.ProcessPaymentRequest;
 import br.com.fiap.techchallenge.paymentservice.application.ports.output.PaymentEventPublisher;
+import br.com.fiap.techchallenge.paymentservice.application.ports.output.PaymentRepositoryPort;
 import br.com.fiap.techchallenge.paymentservice.application.usecases.ProcessPaymentUseCase;
+import br.com.fiap.techchallenge.paymentservice.domain.entities.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,24 +19,26 @@ public class PaymentKafkaConsumer {
 
     private final ProcessPaymentUseCase processPaymentUseCase;
     private final PaymentEventPublisher paymentEventPublisher;
+    private final PaymentRepositoryPort paymentRepository;
 
-    @KafkaListener(topics = "order-created", groupId = "payment-service-group")
+    @KafkaListener(topics = "pedido.criado", groupId = "payment-service-group")
     public void onOrderCreated(OrderCreatedEvent event) {
-        log.info("Received order-created event for orderId={}", event.orderId());
+        log.info("Received pedido.criado event for orderId={}", event.orderId());
 
-        String status;
+        String paymentId = "PAY-" + event.orderId();
+        String amount = event.totalAmount().toPlainString();
+        var resultEvent = new PaymentResultEvent(event.orderId(), null);
+
         try {
             processPaymentUseCase.execute(new ProcessPaymentRequest(
-                    "PAY-" + event.orderId(),
-                    String.valueOf(event.orderId()),
-                    event.totalAmount().longValue()
+                    paymentId, String.valueOf(event.orderId()), event.totalAmount().longValue()
             ));
-            status = "APPROVED";
+            paymentRepository.save(Payment.create(paymentId, String.valueOf(event.orderId()), amount, "APPROVED"));
+            paymentEventPublisher.publishPaymentApproved(new PaymentResultEvent(event.orderId(), "APPROVED"));
         } catch (Exception e) {
             log.error("Payment failed for orderId={}: {}", event.orderId(), e.getMessage());
-            status = "REJECTED";
+            paymentRepository.save(Payment.create(paymentId, String.valueOf(event.orderId()), amount, "PENDING"));
+            paymentEventPublisher.publishPaymentPending(new PaymentResultEvent(event.orderId(), "PENDING"));
         }
-
-        paymentEventPublisher.publishPaymentResult(new PaymentResultEvent(event.orderId(), status));
     }
 }

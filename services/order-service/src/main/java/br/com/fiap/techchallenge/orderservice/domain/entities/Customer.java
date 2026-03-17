@@ -11,15 +11,20 @@ import lombok.Setter;
 public class Customer {
 
     private Long id;
+    private String externalUserId;
 
     public static Customer create() {
-        return Customer.create(null);
+        return Customer.create(null, null);
     }
 
     public static Customer create(Long id) {
-        Customer customer = new Customer();
-        customer.setId(id);
-        return customer;
+        return Customer.create(id, null);
     }
 
+    public static Customer create(Long id, String externalUserId) {
+        Customer customer = new Customer();
+        customer.setId(id);
+        customer.setExternalUserId(externalUserId);
+        return customer;
+    }
 }

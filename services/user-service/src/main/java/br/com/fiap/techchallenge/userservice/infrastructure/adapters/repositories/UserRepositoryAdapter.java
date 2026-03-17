@@ -2,14 +2,14 @@ package br.com.fiap.techchallenge.userservice.infrastructure.adapters.repositori
 
 import br.com.fiap.techchallenge.userservice.application.ports.output.UserRepositoryPort;
 import br.com.fiap.techchallenge.userservice.domain.entities.User;
-import br.com.fiap.techchallenge.userservice.infrastructure.database.UserEntity;
 import br.com.fiap.techchallenge.userservice.infrastructure.database.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-// infrastructure/adapter/out/persistence/UserRepositoryAdapter.java
 @Component
 @RequiredArgsConstructor
 public class UserRepositoryAdapter implements UserRepositoryPort {
@@ -19,8 +19,12 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public User save(User user) {
-        UserEntity entity = mapper.toEntity(user);
-        return mapper.toDomain(jpaRepository.save(entity));
+        return mapper.toDomain(jpaRepository.save(mapper.toEntity(user)));
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return jpaRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override
@@ -29,7 +33,17 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public List<User> findAll() {
+        return jpaRepository.findAll().stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return jpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaRepository.deleteById(id);
     }
 }

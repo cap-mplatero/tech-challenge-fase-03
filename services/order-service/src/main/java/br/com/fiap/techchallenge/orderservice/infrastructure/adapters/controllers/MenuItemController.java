@@ -1,7 +1,8 @@
-package br.com.fiap.techchallenge.orderservice.presentation.routes;
+package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.controllers;
 
 import br.com.fiap.techchallenge.orderservice.application.dtos.MenuItemDTO;
 import br.com.fiap.techchallenge.orderservice.application.usecases.MenuItemUseCase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,33 +18,28 @@ public class MenuItemController {
     private final MenuItemUseCase menuItemUseCase;
 
     @PostMapping
-    public ResponseEntity<MenuItemDTO> createMenuItem(@RequestBody MenuItemDTO dto) {
-        MenuItemDTO created = menuItemUseCase.createMenuItem(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<MenuItemDTO> createMenuItem(@RequestBody @Valid MenuItemDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(menuItemUseCase.createMenuItem(dto));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MenuItemDTO> getMenuItemById(@PathVariable Long id) {
-        MenuItemDTO menuItem = menuItemUseCase.getMenuItemById(id);
-        return ResponseEntity.ok(menuItem);
+        return ResponseEntity.ok(menuItemUseCase.getMenuItemById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<MenuItemDTO>> getAllMenuItems() {
-        List<MenuItemDTO> menuItems = menuItemUseCase.getAllMenuItems();
-        return ResponseEntity.ok(menuItems);
+        return ResponseEntity.ok(menuItemUseCase.getAllMenuItems());
     }
 
     @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<List<MenuItemDTO>> getMenuItemsByRestaurantId(@PathVariable Long restaurantId) {
-        List<MenuItemDTO> menuItems = menuItemUseCase.getMenuItemsByRestaurantId(restaurantId);
-        return ResponseEntity.ok(menuItems);
+        return ResponseEntity.ok(menuItemUseCase.getMenuItemsByRestaurantId(restaurantId));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MenuItemDTO> updateMenuItem(@PathVariable Long id, @RequestBody MenuItemDTO dto) {
-        MenuItemDTO updated = menuItemUseCase.updateMenuItem(id, dto);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<MenuItemDTO> updateMenuItem(@PathVariable Long id, @RequestBody @Valid MenuItemDTO dto) {
+        return ResponseEntity.ok(menuItemUseCase.updateMenuItem(id, dto));
     }
 
     @DeleteMapping("/{id}")
@@ -52,4 +48,3 @@ public class MenuItemController {
         return ResponseEntity.noContent().build();
     }
 }
-

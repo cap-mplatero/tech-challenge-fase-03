@@ -27,6 +27,7 @@ public class JwtAdapter implements JwtPort {
     public String generateToken(User user) {
         return Jwts.builder()
                 .subject(user.getEmail())
+                .claim("userId", user.getId().toString())
                 .claim("roles", user.getRoles().stream()
                         .map(Role::name).collect(Collectors.toList()))
                 .issuedAt(new Date())

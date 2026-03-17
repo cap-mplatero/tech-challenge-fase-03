@@ -55,6 +55,21 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    public List<Order> findByCustomerId(Long customerId) {
+        return orderJpaRepository.findByCustomerId(customerId).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<Order> findByStatus(String status) {
+        return orderJpaRepository.findByStatus(status).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<Order> findByRestaurantId(Long restaurantId) {
+        return orderJpaRepository.findByRestaurantId(restaurantId).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public boolean existsById(Long id) {
         return orderJpaRepository.existsById(id);
     }

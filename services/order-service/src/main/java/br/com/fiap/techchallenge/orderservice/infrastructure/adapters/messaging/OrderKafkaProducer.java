@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderKafkaProducer implements OrderEventPublisher {
 
-    private static final String TOPIC = "order-created";
+    private static final String TOPIC = "pedido.criado";
 
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
     @Override
     public void publishOrderCreated(OrderCreatedEvent event) {
-        log.info("Publishing order-created event for orderId={}", event.orderId());
+        log.info("Publishing pedido.criado event for orderId={}", event.orderId());
         kafkaTemplate.send(TOPIC, String.valueOf(event.orderId()), event);
     }
 }

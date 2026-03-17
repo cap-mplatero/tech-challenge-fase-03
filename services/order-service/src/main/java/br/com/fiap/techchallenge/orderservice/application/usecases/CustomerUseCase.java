@@ -3,6 +3,7 @@ package br.com.fiap.techchallenge.orderservice.application.usecases;
 import br.com.fiap.techchallenge.orderservice.application.dtos.CustomerDTO;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.CustomerRepository;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Customer;
+import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class CustomerUseCase {
 
     public CustomerDTO updateCustomer(Long id, CustomerDTO dto) {
         if (!customerRepository.existsById(id)) {
-            throw new RuntimeException("Customer not found with id: " + id);
+            throw new EntityNotFoundException("Customer not found with id: " + id);
         }
         Customer customer = Customer.create(id);
         Customer updated = customerRepository.update(customer);
@@ -45,7 +46,7 @@ public class CustomerUseCase {
 
     public void deleteCustomer(Long id) {
         if (!customerRepository.existsById(id)) {
-            throw new RuntimeException("Customer not found with id: " + id);
+            throw new EntityNotFoundException("Customer not found with id: " + id);
         }
         customerRepository.deleteById(id);
     }
