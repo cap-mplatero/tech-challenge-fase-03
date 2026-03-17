@@ -1,11 +1,14 @@
 package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.controllers;
 
 import br.com.fiap.techchallenge.orderservice.application.dtos.OrderDTO;
+import br.com.fiap.techchallenge.orderservice.application.ports.output.CustomerRepository;
 import br.com.fiap.techchallenge.orderservice.application.usecases.OrderUseCase;
+import br.com.fiap.techchallenge.orderservice.domain.entities.Customer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +20,12 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderUseCase orderUseCase;
+    private final CustomerRepository customerRepository;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody @Valid OrderDTO dto) {
+    public ResponseEntity<OrderDTO> createOrder(@RequestBody @Valid OrderDTO dto, Authentication auth) {
+        Long customerId = resolveCustomerId(auth);
+        dto.setCustomerId(customerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderUseCase.createOrder(dto));
     }
 
@@ -29,12 +35,8 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
-        return ResponseEntity.ok(orderUseCase.getAllOrders());
-    }
-
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderDTO>> getOrdersByCustomerId(@PathVariable Long customerId) {
+    public ResponseEntity<List<OrderDTO>> getMyOrders(Authentication auth) {
+        Long customerId = resolveCustomerId(auth);
         return ResponseEntity.ok(orderUseCase.getOrdersByCustomerId(customerId));
     }
 
@@ -49,7 +51,9 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderDTO dto) {
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderDTO dto, Authentication auth) {
+        Long customerId = resolveCustomerId(auth);
+        dto.setCustomerId(customerId);
         return ResponseEntity.ok(orderUseCase.updateOrder(id, dto));
     }
 
@@ -66,5 +70,12 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderUseCase.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private Long resolveCustomerId(Authentication auth) {
+        String externalUserId = (String) auth.getPrincipal();
+        Customer customer = customerRepository.findByExternalUserId(externalUserId)
+                .orElseGet(() -> customerRepository.save(Customer.create(null, externalUserId)));
+        return customer.getId();
     }
 }

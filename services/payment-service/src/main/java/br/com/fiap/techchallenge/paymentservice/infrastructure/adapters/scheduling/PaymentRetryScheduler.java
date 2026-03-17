@@ -36,7 +36,7 @@ public class PaymentRetryScheduler {
                 ));
                 payment.setStatus("APPROVED");
                 paymentRepository.save(payment);
-                paymentEventPublisher.publishPaymentResult(
+                paymentEventPublisher.publishPaymentApproved(
                         new PaymentResultEvent(Long.parseLong(payment.getOrderId()), "APPROVED"));
                 log.info("Pending payment {} approved on retry", payment.getId());
             } catch (Exception e) {

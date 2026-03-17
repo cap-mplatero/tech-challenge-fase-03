@@ -49,6 +49,15 @@ springdoc:
     path: /swagger-ui.html
 
 resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
+        cancelRunningFuture: true
+    instances:
+      externalPaymentProcessor:
+        baseConfig: default
+
   circuitbreaker:
     configs:
       default:

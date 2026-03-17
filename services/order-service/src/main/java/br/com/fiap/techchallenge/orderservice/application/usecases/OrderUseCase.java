@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderUseCase {
 
-    private static final String PENDING_STATUS = "PENDING";
+    private static final String PENDING_STATUS = "AGUARDANDO_PAGAMENTO";
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;

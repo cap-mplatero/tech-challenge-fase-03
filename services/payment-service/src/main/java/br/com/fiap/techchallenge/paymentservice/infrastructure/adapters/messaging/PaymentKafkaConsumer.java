@@ -21,25 +21,24 @@ public class PaymentKafkaConsumer {
     private final PaymentEventPublisher paymentEventPublisher;
     private final PaymentRepositoryPort paymentRepository;
 
-    @KafkaListener(topics = "order-created", groupId = "payment-service-group")
+    @KafkaListener(topics = "pedido.criado", groupId = "payment-service-group")
     public void onOrderCreated(OrderCreatedEvent event) {
-        log.info("Received order-created event for orderId={}", event.orderId());
+        log.info("Received pedido.criado event for orderId={}", event.orderId());
 
         String paymentId = "PAY-" + event.orderId();
         String amount = event.totalAmount().toPlainString();
-        String status;
+        var resultEvent = new PaymentResultEvent(event.orderId(), null);
 
         try {
             processPaymentUseCase.execute(new ProcessPaymentRequest(
                     paymentId, String.valueOf(event.orderId()), event.totalAmount().longValue()
             ));
-            status = "APPROVED";
+            paymentRepository.save(Payment.create(paymentId, String.valueOf(event.orderId()), amount, "APPROVED"));
+            paymentEventPublisher.publishPaymentApproved(new PaymentResultEvent(event.orderId(), "APPROVED"));
         } catch (Exception e) {
             log.error("Payment failed for orderId={}: {}", event.orderId(), e.getMessage());
-            status = "PENDING";
+            paymentRepository.save(Payment.create(paymentId, String.valueOf(event.orderId()), amount, "PENDING"));
+            paymentEventPublisher.publishPaymentPending(new PaymentResultEvent(event.orderId(), "PENDING"));
         }
-
-        paymentRepository.save(Payment.create(paymentId, String.valueOf(event.orderId()), amount, status));
-        paymentEventPublisher.publishPaymentResult(new PaymentResultEvent(event.orderId(), status));
     }
 }

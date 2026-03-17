@@ -30,11 +30,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
+    public Optional<Customer> findByExternalUserId(String externalUserId) {
+        return customerJpaRepository.findByExternalUserId(externalUserId).map(this::toDomain);
+    }
+
+    @Override
     public List<Customer> findAll() {
-        return customerJpaRepository.findAll()
-                .stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
+        return customerJpaRepository.findAll().stream().map(this::toDomain).collect(Collectors.toList());
     }
 
     @Override
@@ -57,11 +59,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     private CustomerEntity toEntity(Customer customer) {
         return CustomerEntity.builder()
                 .id(customer.getId())
+                .externalUserId(customer.getExternalUserId())
                 .build();
     }
 
     private Customer toDomain(CustomerEntity entity) {
-        return Customer.create(entity.getId());
+        return Customer.create(entity.getId(), entity.getExternalUserId());
     }
 }
-

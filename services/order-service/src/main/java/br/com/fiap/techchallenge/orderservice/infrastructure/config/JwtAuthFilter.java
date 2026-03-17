@@ -45,7 +45,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                             ? roles.stream().map(SimpleGrantedAuthority::new).toList()
                             : List.<SimpleGrantedAuthority>of();
 
-                    var auth = new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities);
+                    String userId = claims.get("userId", String.class);
+                    var auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             } catch (Exception ignored) {

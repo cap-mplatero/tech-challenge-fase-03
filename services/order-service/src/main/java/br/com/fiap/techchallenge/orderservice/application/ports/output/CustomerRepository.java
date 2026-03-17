@@ -11,6 +11,8 @@ public interface CustomerRepository {
 
     Optional<Customer> findById(Long id);
 
+    Optional<Customer> findByExternalUserId(String externalUserId);
+
     List<Customer> findAll();
 
     Customer update(Customer customer);

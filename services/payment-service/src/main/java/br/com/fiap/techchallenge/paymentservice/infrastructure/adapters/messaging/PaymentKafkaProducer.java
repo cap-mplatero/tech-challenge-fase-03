@@ -12,13 +12,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PaymentKafkaProducer implements PaymentEventPublisher {
 
-    private static final String TOPIC = "payment-result";
-
     private final KafkaTemplate<String, PaymentResultEvent> kafkaTemplate;
 
     @Override
-    public void publishPaymentResult(PaymentResultEvent event) {
-        log.info("Publishing payment-result for orderId={} status={}", event.orderId(), event.status());
-        kafkaTemplate.send(TOPIC, String.valueOf(event.orderId()), event);
+    public void publishPaymentApproved(PaymentResultEvent event) {
+        log.info("Publishing pagamento.aprovado for orderId={}", event.orderId());
+        kafkaTemplate.send("pagamento.aprovado", String.valueOf(event.orderId()), event);
+    }
+
+    @Override
+    public void publishPaymentPending(PaymentResultEvent event) {
+        log.info("Publishing pagamento.pendente for orderId={}", event.orderId());
+        kafkaTemplate.send("pagamento.pendente", String.valueOf(event.orderId()), event);
     }
 }

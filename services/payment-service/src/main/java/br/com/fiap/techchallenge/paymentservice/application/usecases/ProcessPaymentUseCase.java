@@ -12,6 +12,6 @@ public class ProcessPaymentUseCase {
     private final ExternalPaymentProcessorClient externalPaymentProcessorClient;
 
     public void execute(ProcessPaymentRequest paymentRequest) {
-        externalPaymentProcessorClient.processPayment(paymentRequest);
+        externalPaymentProcessorClient.processPayment(paymentRequest).join();
     }
 }

@@ -6,6 +6,7 @@ import br.com.fiap.techchallenge.paymentservice.application.ports.output.Externa
 import br.com.fiap.techchallenge.paymentservice.infrastructure.util.ExternalPaymentProcessorMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
@@ -29,39 +31,37 @@ public class ExternalPaymentProcessorClientImpl implements ExternalPaymentProces
     }
 
     @Override
+    @TimeLimiter(name = "externalPaymentProcessor")
     @CircuitBreaker(name = "externalPaymentProcessor", fallbackMethod = "fallbackProcessPayment")
     @Retry(name = "externalPaymentProcessor")
-    public void processPayment(ProcessPaymentRequest paymentRequest) {
-        Map<String, Object> body = ExternalPaymentProcessorMapper.toRequestBody(paymentRequest);
+    public CompletableFuture<Void> processPayment(ProcessPaymentRequest paymentRequest) {
+        return CompletableFuture.runAsync(() -> {
+            Map<String, Object> body = ExternalPaymentProcessorMapper.toRequestBody(paymentRequest);
 
-        log.info("=== EXTERNAL PAYMENT REQUEST ===");
-        log.info("URL: {}", paymentUrl);
-        log.info("Request Body: {}", body);
+            log.info("=== EXTERNAL PAYMENT REQUEST ===");
+            log.info("URL: {}", paymentUrl);
+            log.info("Request Body: {}", body);
 
-        ResponseEntity<String> responseEntity = webClient.post()
-                .bodyValue(body)
-                .exchangeToMono(response -> {
-                    log.info("=== EXTERNAL PAYMENT RESPONSE ===");
-                    log.info("HTTP Status: {}", response.statusCode());
-                    log.info("Headers: {}", response.headers().asHttpHeaders());
-                    return response.toEntity(String.class);
-                })
-                .block();
+            ResponseEntity<String> responseEntity = webClient.post()
+                    .bodyValue(body)
+                    .exchangeToMono(response -> {
+                        log.info("=== EXTERNAL PAYMENT RESPONSE ===");
+                        log.info("HTTP Status: {}", response.statusCode());
+                        return response.toEntity(String.class);
+                    })
+                    .block();
 
-        if (responseEntity != null) {
-            log.info("Response Body: {}", responseEntity.getBody());
-            log.info("Is Successful: {}", responseEntity.getStatusCode().is2xxSuccessful());
-            if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Payment processing failed with status: " + responseEntity.getStatusCode());
+            if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                log.info("Response Body: {}", responseEntity.getBody());
+                return;
             }
-            return;
-        }
 
-        throw new RuntimeException("Payment processing failed: response entity is null");
+            throw new RuntimeException("Payment processing failed");
+        });
     }
 
-    public void fallbackProcessPayment(ProcessPaymentRequest paymentRequest, Throwable throwable) {
+    public CompletableFuture<Void> fallbackProcessPayment(ProcessPaymentRequest paymentRequest, Throwable throwable) {
         log.error("Fallback triggered for payment {}: {}", paymentRequest.paymentId(), throwable.getMessage());
-        throw new FallbackException(throwable.getMessage());
+        return CompletableFuture.failedFuture(new FallbackException(throwable.getMessage()));
     }
 }
