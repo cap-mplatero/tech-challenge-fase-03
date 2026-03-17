@@ -25,6 +25,7 @@ bin/
 
 ### VS Code ###
 .vscode/
+.kiro
 
 ### Mac OS ###
 .DS_Store
