@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -32,15 +33,15 @@ public class PaymentRetryScheduler {
         for (Payment payment : pending) {
             try {
                 processPaymentUseCase.execute(new ProcessPaymentRequest(
-                        payment.getId(), payment.getOrderId(), Long.parseLong(payment.getAmount())
-                ));
+                        payment.getId(), payment.getOrderId(), new BigDecimal(payment.getAmount()).longValue())
+                );
                 payment.setStatus("APPROVED");
                 paymentRepository.save(payment);
                 paymentEventPublisher.publishPaymentApproved(
                         new PaymentResultEvent(Long.parseLong(payment.getOrderId()), "APPROVED"));
                 log.info("Pending payment {} approved on retry", payment.getId());
             } catch (Exception e) {
-                log.warn("Retry failed for payment {}: {}", payment.getId(), e.getMessage());
+                log.error("Retry failed for payment {}", payment.getId(), e);
             }
         }
     }

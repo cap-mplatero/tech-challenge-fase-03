@@ -29,6 +29,7 @@ public class Order {
         order.setCustomerId(customerId);
         order.setRestaurantId(restaurantId);
         order.setStatus(status);
+        order.setMenuItemSet(menuItemSet);
 
         return order;
     }

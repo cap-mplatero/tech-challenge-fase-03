@@ -25,6 +25,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: orderCreatedEvent:br.com.fiap.techchallenge.orderservice.application.dtos.OrderCreatedEvent
     consumer:
       group-id: order-service-group
       auto-offset-reset: earliest
@@ -32,6 +34,8 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.type.mapping: paymentResultEvent:br.com.fiap.techchallenge.orderservice.application.dtos.PaymentResultEvent
+        spring.json.value.default.type: br.com.fiap.techchallenge.orderservice.application.dtos.PaymentResultEvent
 
 jwt:
   secret: ${JWT_SECRET:dGVjaC1jaGFsbGVuZ2UtZmFzZS0wMy1zZWNyZXQta2V5LWJhc2U2NC1lbmNvZGVk}

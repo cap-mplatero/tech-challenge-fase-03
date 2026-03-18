@@ -1,0 +1,860 @@
+{
+  "info": {
+    "name": "Tech Challenge Fase 03",
+    "description": "Collection for testing all microservices: user-service (8081), order-service (8080), payment-service (8082)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "user_service_url",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "order_service_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "payment_service_url",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "customer_id",
+      "value": ""
+    },
+    {
+      "key": "restaurant_id",
+      "value": ""
+    },
+    {
+      "key": "menu_item_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Register - Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('token', json.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ROLE_CUSTOMER\"\n}"
+                },
+                "url": {
+                  "raw": "{{user_service_url}}/auth/register",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["auth", "register"]
+                }
+              }
+            },
+            {
+              "name": "Register - Restaurant Owner",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('token', json.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Jane Owner\",\n  \"email\": \"jane.owner@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ROLE_RESTAURANT_OWNER\"\n}"
+                },
+                "url": {
+                  "raw": "{{user_service_url}}/auth/register",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["auth", "register"]
+                }
+              }
+            },
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('token', json.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{user_service_url}}/auth/login",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["auth", "login"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Find All Users",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{user_service_url}}/users",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["users"]
+                }
+              }
+            },
+            {
+              "name": "Find User by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{user_service_url}}/users/{{user_id}}",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["users", "{{user_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"password\": \"newpassword123\"\n}"
+                },
+                "url": {
+                  "raw": "{{user_service_url}}/users/{{user_id}}",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["users", "{{user_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{user_service_url}}/users/{{user_id}}",
+                  "host": ["{{user_service_url}}"],
+                  "path": ["users", "{{user_id}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "Customers",
+          "item": [
+            {
+              "name": "Create Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('customer_id', json.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/customers",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "customers"]
+                }
+              }
+            },
+            {
+              "name": "Get Customer by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/customers/{{customer_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "customers", "{{customer_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Get All Customers",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/customers",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "customers"]
+                }
+              }
+            },
+            {
+              "name": "Update Customer",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": {{customer_id}}\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/customers/{{customer_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "customers", "{{customer_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Customer",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/customers/{{customer_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "customers", "{{customer_id}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restaurants",
+          "item": [
+            {
+              "name": "Create Restaurant",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('restaurant_id', json.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pizzaria Bella Napoli\",\n  \"address\": \"Rua Augusta, 1234 - São Paulo, SP\",\n  \"cuisineType\": \"Italian\"\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/restaurants",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "restaurants"]
+                }
+              }
+            },
+            {
+              "name": "Get Restaurant by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "restaurants", "{{restaurant_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Get All Restaurants",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/restaurants",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "restaurants"]
+                }
+              }
+            },
+            {
+              "name": "Update Restaurant",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pizzaria Bella Napoli - Filial\",\n  \"address\": \"Av. Paulista, 5678 - São Paulo, SP\",\n  \"cuisineType\": \"Italian\"\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "restaurants", "{{restaurant_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Restaurant",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "restaurants", "{{restaurant_id}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Menu Items",
+          "item": [
+            {
+              "name": "Create Menu Item",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('menu_item_id', json.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Margherita Pizza\",\n  \"quantity\": 10,\n  \"price\": 45.90\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items"]
+                }
+              }
+            },
+            {
+              "name": "Create Menu Item - Pasta",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Spaghetti Carbonara\",\n  \"quantity\": 15,\n  \"price\": 38.50\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items"]
+                }
+              }
+            },
+            {
+              "name": "Get Menu Item by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items", "{{menu_item_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Get All Menu Items",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items"]
+                }
+              }
+            },
+            {
+              "name": "Get Menu Items by Restaurant ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items/restaurant/{{restaurant_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items", "restaurant", "{{restaurant_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Menu Item",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Margherita Pizza Grande\",\n  \"quantity\": 20,\n  \"price\": 55.90\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items", "{{menu_item_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Menu Item",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "menu-items", "{{menu_item_id}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "Create Order",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var json = pm.response.json();",
+                      "    pm.collectionVariables.set('order_id', json.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"menuItemIds\": [{{menu_item_id}}]\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders"]
+                }
+              }
+            },
+            {
+              "name": "Get Order by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders/{{order_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders", "{{order_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Get My Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders"]
+                }
+              }
+            },
+            {
+              "name": "Get Orders by Status - PENDING",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders/status/PENDING",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders", "status", "PENDING"]
+                }
+              }
+            },
+            {
+              "name": "Get Orders by Restaurant ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders/restaurant/{{restaurant_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders", "restaurant", "{{restaurant_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Order",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"menuItemIds\": [{{menu_item_id}}]\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders/{{order_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders", "{{order_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Order Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+                },
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders/{{order_id}}/status",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders", "{{order_id}}", "status"]
+                }
+              }
+            },
+            {
+              "name": "Delete Order",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{order_service_url}}/api/orders/{{order_id}}",
+                  "host": ["{{order_service_url}}"],
+                  "path": ["api", "orders", "{{order_id}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Payment Service",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"PAY-001\",\n  \"orderId\": \"{{order_id}}\",\n  \"amount\": 4590\n}"
+            },
+            "url": {
+              "raw": "{{payment_service_url}}/api/payments",
+              "host": ["{{payment_service_url}}"],
+              "path": ["api", "payments"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

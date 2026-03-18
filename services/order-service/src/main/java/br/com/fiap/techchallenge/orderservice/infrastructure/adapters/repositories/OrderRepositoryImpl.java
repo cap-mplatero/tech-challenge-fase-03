@@ -9,6 +9,7 @@ import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.R
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.repositories.OrderJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     private final OrderJpaRepository orderJpaRepository;
 
     @Override
+    @Transactional
     public Order save(Order order) {
         OrderEntity entity = toEntity(order);
         OrderEntity saved = orderJpaRepository.save(entity);
@@ -30,11 +32,13 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Order> findById(Long id) {
         return orderJpaRepository.findById(id).map(this::toDomain);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> findAll() {
         return orderJpaRepository.findAll()
                 .stream()
@@ -43,6 +47,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    @Transactional
     public Order update(Order order) {
         OrderEntity entity = toEntity(order);
         OrderEntity updated = orderJpaRepository.save(entity);
@@ -50,26 +55,31 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         orderJpaRepository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> findByCustomerId(Long customerId) {
         return orderJpaRepository.findByCustomerId(customerId).stream().map(this::toDomain).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> findByStatus(String status) {
         return orderJpaRepository.findByStatus(status).stream().map(this::toDomain).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> findByRestaurantId(Long restaurantId) {
         return orderJpaRepository.findByRestaurantId(restaurantId).stream().map(this::toDomain).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsById(Long id) {
         return orderJpaRepository.existsById(id);
     }
