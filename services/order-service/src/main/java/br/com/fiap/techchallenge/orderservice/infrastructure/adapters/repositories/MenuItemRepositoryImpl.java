@@ -70,7 +70,6 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
         return MenuItemEntity.builder()
                 .id(menuItem.getId())
                 .name(menuItem.getName())
-                .quantity(menuItem.getQuantity())
                 .price(menuItem.getPrice())
                 .restaurant(restaurantRef)
                 .build();
@@ -80,7 +79,6 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
         return MenuItem.create(
                 entity.getId(),
                 entity.getName(),
-                entity.getQuantity(),
                 entity.getPrice(),
                 entity.getRestaurant().getId()
         );

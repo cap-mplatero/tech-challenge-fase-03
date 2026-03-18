@@ -540,7 +540,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Spaghetti Carbonara\",\n  \"quantity\": 15,\n  \"price\": 38.50\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Spaghetti Carbonara\",\n  \"price\": 38.50\n}"
                 },
                 "url": {
                   "raw": "{{order_service_url}}/api/menu-items",
@@ -770,7 +770,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"menuItemIds\": [{{menu_item_id}}]\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"menuItemQuantities\": {\n    \"{{menu_item_id}}\": 3\n  }\n}"
                 },
                 "url": {
                   "raw": "{{order_service_url}}/api/orders/{{order_id}}",

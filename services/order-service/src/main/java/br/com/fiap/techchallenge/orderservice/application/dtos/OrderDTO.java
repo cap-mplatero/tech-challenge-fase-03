@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.Map;
 
 @Data
 @Builder
@@ -19,6 +19,6 @@ public class OrderDTO {
     @NotNull
     private Long restaurantId;
     @NotEmpty
-    private Set<Long> menuItemIds;
+    private Map<Long, Integer> menuItemQuantities; // menuItemId -> quantity
     private String status;
 }

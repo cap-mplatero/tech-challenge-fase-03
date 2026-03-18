@@ -2,19 +2,13 @@ package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.repositor
 
 import br.com.fiap.techchallenge.orderservice.application.ports.output.OrderRepository;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Order;
-import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.CustomerEntity;
-import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.MenuItemEntity;
-import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.OrderEntity;
-import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.RestaurantEntity;
+import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.*;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.repositories.OrderJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -91,32 +85,40 @@ public class OrderRepositoryImpl implements OrderRepository {
         RestaurantEntity restaurantRef = new RestaurantEntity();
         restaurantRef.setId(order.getRestaurantId());
 
-        Set<MenuItemEntity> menuItemEntities = Collections.emptySet();
-        if (order.getMenuItemSet() != null) {
-            menuItemEntities = order.getMenuItemSet().stream()
-                    .map(menuItemId -> {
-                        MenuItemEntity menuItemRef = new MenuItemEntity();
-                        menuItemRef.setId(menuItemId);
-                        return menuItemRef;
-                    })
-                    .collect(Collectors.toSet());
-        }
-
-        return OrderEntity.builder()
+        OrderEntity orderEntity = OrderEntity.builder()
                 .id(order.getId())
                 .status(order.getStatus())
                 .customer(customerRef)
                 .restaurant(restaurantRef)
-                .menuItems(menuItemEntities)
+                .orderMenuItems(new ArrayList<>())
                 .build();
+
+        if (order.getMenuItemQuantities() != null) {
+            List<OrderMenuItemEntity> items = order.getMenuItemQuantities().entrySet().stream()
+                    .map(entry -> {
+                        MenuItemEntity menuItemRef = new MenuItemEntity();
+                        menuItemRef.setId(entry.getKey());
+
+                        return OrderMenuItemEntity.builder()
+                                .id(new OrderMenuItemId(order.getId(), entry.getKey()))
+                                .order(orderEntity)
+                                .menuItem(menuItemRef)
+                                .quantity(entry.getValue())
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            orderEntity.getOrderMenuItems().addAll(items);
+        }
+
+        return orderEntity;
     }
 
     private Order toDomain(OrderEntity entity) {
-        Set<Long> menuItemIds = Collections.emptySet();
-        if (entity.getMenuItems() != null) {
-            menuItemIds = entity.getMenuItems().stream()
-                    .map(MenuItemEntity::getId)
-                    .collect(Collectors.toSet());
+        Map<Long, Integer> menuItemQuantities = new HashMap<>();
+        if (entity.getOrderMenuItems() != null) {
+            entity.getOrderMenuItems().forEach(item ->
+                    menuItemQuantities.put(item.getMenuItem().getId(), item.getQuantity())
+            );
         }
 
         return Order.create(
@@ -124,7 +126,7 @@ public class OrderRepositoryImpl implements OrderRepository {
                 entity.getCustomer().getId(),
                 entity.getRestaurant().getId(),
                 entity.getStatus(),
-                menuItemIds
+                menuItemQuantities
         );
     }
 }

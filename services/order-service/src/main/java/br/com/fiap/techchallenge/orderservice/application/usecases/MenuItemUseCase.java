@@ -23,7 +23,7 @@ public class MenuItemUseCase {
             throw new EntityNotFoundException("Restaurant not found with id: " + dto.getRestaurantId());
         }
 
-        MenuItem menuItem = MenuItem.create(dto.getName(), dto.getQuantity(), dto.getPrice(), dto.getRestaurantId());
+        MenuItem menuItem = MenuItem.create(dto.getName(), dto.getPrice(), dto.getRestaurantId());
         MenuItem saved = menuItemRepository.save(menuItem);
         return toDTO(saved);
     }
@@ -60,7 +60,7 @@ public class MenuItemUseCase {
             throw new EntityNotFoundException("Restaurant not found with id: " + dto.getRestaurantId());
         }
 
-        MenuItem menuItem = MenuItem.create(id, dto.getName(), dto.getQuantity(), dto.getPrice(), dto.getRestaurantId());
+        MenuItem menuItem = MenuItem.create(id, dto.getName(), dto.getPrice(), dto.getRestaurantId());
         MenuItem updated = menuItemRepository.update(menuItem);
         return toDTO(updated);
     }
@@ -77,7 +77,6 @@ public class MenuItemUseCase {
                 .id(menuItem.getId())
                 .restaurantId(menuItem.getRestaurantId())
                 .name(menuItem.getName())
-                .quantity(menuItem.getQuantity())
                 .price(menuItem.getPrice())
                 .build();
     }

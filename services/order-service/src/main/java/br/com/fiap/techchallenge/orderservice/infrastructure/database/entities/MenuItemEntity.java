@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "menu_items")
@@ -23,9 +23,6 @@ public class MenuItemEntity {
     @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = false)
-    private Integer quantity;
-
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
@@ -33,8 +30,7 @@ public class MenuItemEntity {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private RestaurantEntity restaurant;
 
-    @ManyToMany(mappedBy = "menuItems", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "menuItem", fetch = FetchType.LAZY)
     @Builder.Default
-    private Set<OrderEntity> orders = new HashSet<>();
+    private List<OrderMenuItemEntity> orderMenuItems = new ArrayList<>();
 }
-

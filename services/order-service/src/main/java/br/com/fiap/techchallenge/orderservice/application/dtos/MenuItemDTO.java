@@ -21,7 +21,5 @@ public class MenuItemDTO {
     @NotBlank
     private String name;
     @NotNull @Positive
-    private Integer quantity;
-    @NotNull @Positive
     private BigDecimal price;
 }

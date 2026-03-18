@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,17 +37,17 @@ public class OrderUseCase {
                 dto.getCustomerId(),
                 dto.getRestaurantId(),
                 PENDING_STATUS,
-                dto.getMenuItemIds()
+                dto.getMenuItemQuantities()
         );
 
         Order saved = orderRepository.save(order);
 
-        BigDecimal total = calculateTotal(dto.getMenuItemIds());
+        BigDecimal total = calculateTotal(dto.getMenuItemQuantities());
         orderEventPublisher.publishOrderCreated(new OrderCreatedEvent(
                 saved.getId(),
                 saved.getCustomerId(),
                 saved.getRestaurantId(),
-                saved.getMenuItemSet(),
+                saved.getMenuItemQuantities().keySet(),
                 total
         ));
 
@@ -77,7 +78,7 @@ public class OrderUseCase {
                 dto.getCustomerId(),
                 dto.getRestaurantId(),
                 dto.getStatus(),
-                dto.getMenuItemIds()
+                dto.getMenuItemQuantities()
         );
 
         Order updated = orderRepository.update(order);
@@ -93,7 +94,7 @@ public class OrderUseCase {
                 order.getCustomerId(),
                 order.getRestaurantId(),
                 status,
-                order.getMenuItemSet()
+                order.getMenuItemQuantities()
         );
 
         Order saved = orderRepository.update(updatedOrder);
@@ -119,15 +120,16 @@ public class OrderUseCase {
         orderRepository.deleteById(id);
     }
 
-    private BigDecimal calculateTotal(java.util.Set<Long> menuItemIds) {
-        if (menuItemIds == null || menuItemIds.isEmpty()) {
+    private BigDecimal calculateTotal(Map<Long, Integer> menuItemQuantities) {
+        if (menuItemQuantities == null || menuItemQuantities.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        return menuItemIds.stream()
-                .map(menuItemRepository::findById)
-                .filter(java.util.Optional::isPresent)
-                .map(java.util.Optional::get)
-                .map(MenuItem::getPrice)
+        return menuItemQuantities.entrySet().stream()
+                .map(entry -> {
+                    MenuItem item = menuItemRepository.findById(entry.getKey())
+                            .orElseThrow(() -> new EntityNotFoundException("Menu item not found: " + entry.getKey()));
+                    return item.getPrice().multiply(BigDecimal.valueOf(entry.getValue()));
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -138,8 +140,8 @@ public class OrderUseCase {
         if (!restaurantRepository.existsById(dto.getRestaurantId())) {
             throw new EntityNotFoundException("Restaurant not found with id: " + dto.getRestaurantId());
         }
-        if (dto.getMenuItemIds() != null) {
-            for (Long menuItemId : dto.getMenuItemIds()) {
+        if (dto.getMenuItemQuantities() != null) {
+            for (Long menuItemId : dto.getMenuItemQuantities().keySet()) {
                 if (!menuItemRepository.existsById(menuItemId)) {
                     throw new EntityNotFoundException("Menu item not found with id: " + menuItemId);
                 }
@@ -152,7 +154,7 @@ public class OrderUseCase {
                 .id(order.getId())
                 .customerId(order.getCustomerId())
                 .restaurantId(order.getRestaurantId())
-                .menuItemIds(order.getMenuItemSet())
+                .menuItemQuantities(order.getMenuItemQuantities())
                 .status(order.getStatus())
                 .build();
     }
