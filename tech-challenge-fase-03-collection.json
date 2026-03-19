@@ -1,0 +1,468 @@
+{
+  "info": {
+    "name": "Tech Challenge Fase 03",
+    "description": "Complete API collection for all microservices: user-service (8081), payment-service (8082), order-service (8080)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "user_service_url", "value": "http://localhost:8081" },
+    { "key": "order_service_url", "value": "http://localhost:8080" },
+    { "key": "payment_service_url", "value": "http://localhost:8082" },
+    { "key": "auth_token", "value": "" },
+    { "key": "user_id", "value": "" },
+    { "key": "customer_id", "value": "1" },
+    { "key": "restaurant_id", "value": "1" },
+    { "key": "menu_item_id", "value": "1" },
+    { "key": "order_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Register",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{user_service_url}}/auth/register" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"João Fontes\",\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_CUSTOMER\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Register Restaurant Owner",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{user_service_url}}/auth/register" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Dono Restaurante\",\n  \"email\": \"dono@restaurante.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_RESTAURANT_OWNER\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.token) {",
+                      "  pm.collectionVariables.set('auth_token', jsonData.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{user_service_url}}/auth/login" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Get All Users",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{user_service_url}}/users" }
+              }
+            },
+            {
+              "name": "Get User By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{user_service_url}}/users/{{user_id}}" }
+              }
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{user_service_url}}/users/{{user_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"João Fontes Atualizado\",\n  \"email\": \"joao.novo@email.com\",\n  \"password\": \"novaSenha1234\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{user_service_url}}/users/{{user_id}}" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "Customers",
+          "item": [
+            {
+              "name": "Create Customer",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/customers" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": null\n}"
+                }
+              }
+            },
+            {
+              "name": "Get All Customers",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/customers" }
+              }
+            },
+            {
+              "name": "Get Customer By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" }
+              }
+            },
+            {
+              "name": "Update Customer",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Customer",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restaurants",
+          "item": [
+            {
+              "name": "Create Restaurant",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/restaurants" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Restaurante Sabor Brasileiro\",\n  \"address\": \"Av. Paulista, 1000 - São Paulo, SP\",\n  \"cuisineType\": \"Brasileira\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Get All Restaurants",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/restaurants" }
+              }
+            },
+            {
+              "name": "Get Restaurant By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" }
+              }
+            },
+            {
+              "name": "Update Restaurant",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Restaurante Sabor Brasileiro Atualizado\",\n  \"address\": \"Rua Augusta, 500 - São Paulo, SP\",\n  \"cuisineType\": \"Italiana\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Restaurant",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Menu Items",
+          "item": [
+            {
+              "name": "Create Menu Item",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/menu-items" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Feijoada Completa\",\n  \"price\": 45.90\n}"
+                }
+              }
+            },
+            {
+              "name": "Create Menu Item 2",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/menu-items" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Picanha na Brasa\",\n  \"price\": 69.90\n}"
+                }
+              }
+            },
+            {
+              "name": "Create Menu Item 3",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/menu-items" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Suco de Laranja Natural\",\n  \"price\": 12.00\n}"
+                }
+              }
+            },
+            {
+              "name": "Get All Menu Items",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/menu-items" }
+              }
+            },
+            {
+              "name": "Get Menu Item By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" }
+              }
+            },
+            {
+              "name": "Get Menu Items By Restaurant",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/restaurant/{{restaurant_id}}" }
+              }
+            },
+            {
+              "name": "Update Menu Item",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Feijoada Premium\",\n  \"price\": 55.90\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Menu Item",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "Create Order",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 1,\n  \"menuItemQuantities\": {\n    \"1\": 2,\n    \"2\": 1,\n    \"3\": 3\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Get Order By ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}" }
+              }
+            },
+            {
+              "name": "Get My Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders" }
+              }
+            },
+            {
+              "name": "Get Orders By Status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/status/PENDING" }
+              }
+            },
+            {
+              "name": "Get Orders By Restaurant",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/restaurant/{{restaurant_id}}" }
+              }
+            },
+            {
+              "name": "Update Order",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 1,\n  \"menuItemQuantities\": {\n    \"1\": 1,\n    \"3\": 2\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Update Order Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}/status" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Order",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Payment Service",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{payment_service_url}}/api/payments" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"PAY-001\",\n  \"orderId\": \"1\",\n  \"amount\": 161.70\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

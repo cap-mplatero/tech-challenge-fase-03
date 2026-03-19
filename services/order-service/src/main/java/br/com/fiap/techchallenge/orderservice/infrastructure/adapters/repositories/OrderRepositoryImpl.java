@@ -4,6 +4,7 @@ import br.com.fiap.techchallenge.orderservice.application.ports.output.OrderRepo
 import br.com.fiap.techchallenge.orderservice.domain.entities.Order;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.entities.*;
 import br.com.fiap.techchallenge.orderservice.infrastructure.database.repositories.OrderJpaRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class OrderRepositoryImpl implements OrderRepository {
 
     private final OrderJpaRepository orderJpaRepository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
@@ -79,11 +81,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     private OrderEntity toEntity(Order order) {
-        CustomerEntity customerRef = new CustomerEntity();
-        customerRef.setId(order.getCustomerId());
-
-        RestaurantEntity restaurantRef = new RestaurantEntity();
-        restaurantRef.setId(order.getRestaurantId());
+        CustomerEntity customerRef = entityManager.getReference(CustomerEntity.class, order.getCustomerId());
+        RestaurantEntity restaurantRef = entityManager.getReference(RestaurantEntity.class, order.getRestaurantId());
 
         OrderEntity orderEntity = OrderEntity.builder()
                 .id(order.getId())
@@ -96,8 +95,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         if (order.getMenuItemQuantities() != null) {
             List<OrderMenuItemEntity> items = order.getMenuItemQuantities().entrySet().stream()
                     .map(entry -> {
-                        MenuItemEntity menuItemRef = new MenuItemEntity();
-                        menuItemRef.setId(entry.getKey());
+                        MenuItemEntity menuItemRef = entityManager.getReference(MenuItemEntity.class, entry.getKey());
 
                         return OrderMenuItemEntity.builder()
                                 .id(new OrderMenuItemId(order.getId(), entry.getKey()))
@@ -130,4 +128,5 @@ public class OrderRepositoryImpl implements OrderRepository {
         );
     }
 }
+
 

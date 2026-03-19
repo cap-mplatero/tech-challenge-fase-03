@@ -27,7 +27,6 @@ public class PaymentKafkaConsumer {
 
         String paymentId = "PAY-" + event.orderId();
         String amount = event.totalAmount().toPlainString();
-        var resultEvent = new PaymentResultEvent(event.orderId(), null);
 
         try {
             processPaymentUseCase.execute(new ProcessPaymentRequest(
