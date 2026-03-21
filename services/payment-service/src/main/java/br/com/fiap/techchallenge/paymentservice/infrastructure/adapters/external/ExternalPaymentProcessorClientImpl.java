@@ -38,21 +38,18 @@ public class ExternalPaymentProcessorClientImpl implements ExternalPaymentProces
         return CompletableFuture.runAsync(() -> {
             Map<String, Object> body = ExternalPaymentProcessorMapper.toRequestBody(paymentRequest);
 
-            log.info("=== EXTERNAL PAYMENT REQUEST ===");
-            log.info("URL: {}", paymentUrl);
-            log.info("Request Body: {}", body);
+            log.info("Calling external URL to process payment: {}", paymentUrl);
 
             ResponseEntity<String> responseEntity = webClient.post()
                     .bodyValue(body)
                     .exchangeToMono(response -> {
-                        log.info("=== EXTERNAL PAYMENT RESPONSE ===");
-                        log.info("HTTP Status: {}", response.statusCode());
+                        log.info("External payment service response HTTP status: {}", response.statusCode());
                         return response.toEntity(String.class);
                     })
                     .block();
 
             if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
-                log.info("Response Body: {}", responseEntity.getBody());
+                log.info("Payment processed successfully!");
                 return;
             }
 

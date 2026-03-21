@@ -22,6 +22,12 @@ public class CustomerEntity {
     @Column(name = "external_user_id", unique = true)
     private String externalUserId;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "address")
+    private String address;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<OrderEntity> orders = new ArrayList<>();

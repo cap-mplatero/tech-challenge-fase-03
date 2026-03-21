@@ -2,7 +2,6 @@ package br.com.fiap.techchallenge.orderservice.infrastructure.config;
 
 import br.com.fiap.techchallenge.orderservice.domain.exceptions.BusinessException;
 import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
-import br.com.fiap.techchallenge.orderservice.infrastructure.config.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

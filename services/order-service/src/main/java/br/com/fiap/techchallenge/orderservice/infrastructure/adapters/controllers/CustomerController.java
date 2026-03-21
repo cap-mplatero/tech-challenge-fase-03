@@ -18,6 +18,14 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CustomerDTO dto) {
+        if (dto.getName() == null) {
+            throw new IllegalArgumentException("Customer name is required");
+        }
+
+        if (dto.getAddress() == null) {
+            throw new IllegalArgumentException("Customer name is required");
+        }
+
         CustomerDTO created = customerUseCase.createCustomer(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

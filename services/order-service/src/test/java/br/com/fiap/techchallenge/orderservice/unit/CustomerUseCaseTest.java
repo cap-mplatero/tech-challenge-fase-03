@@ -4,7 +4,7 @@ import br.com.fiap.techchallenge.orderservice.application.dtos.CustomerDTO;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.CustomerRepository;
 import br.com.fiap.techchallenge.orderservice.application.usecases.CustomerUseCase;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Customer;
-import org.junit.jupiter.api.BeforeEach;
+import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,13 +37,16 @@ class CustomerUseCaseTest {
         @Test
         @DisplayName("Should create a customer successfully")
         void shouldCreateCustomerSuccessfully() {
-            Customer saved = Customer.create(1L);
+            Customer saved = Customer.create(1L, "John Doe", "123 Main St");
             when(customerRepository.save(any(Customer.class))).thenReturn(saved);
 
-            CustomerDTO result = customerUseCase.createCustomer(new CustomerDTO());
+            CustomerDTO input = CustomerDTO.builder().name("John Doe").address("123 Main St").build();
+            CustomerDTO result = customerUseCase.createCustomer(input);
 
             assertNotNull(result);
             assertEquals(1L, result.getId());
+            assertEquals("John Doe", result.getName());
+            assertEquals("123 Main St", result.getAddress());
             verify(customerRepository).save(any(Customer.class));
         }
     }
@@ -55,13 +58,15 @@ class CustomerUseCaseTest {
         @Test
         @DisplayName("Should return customer when found")
         void shouldReturnCustomerWhenFound() {
-            Customer customer = Customer.create(1L);
+            Customer customer = Customer.create(1L, "John Doe", "123 Main St");
             when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
 
             CustomerDTO result = customerUseCase.getCustomerById(1L);
 
             assertNotNull(result);
             assertEquals(1L, result.getId());
+            assertEquals("John Doe", result.getName());
+            assertEquals("123 Main St", result.getAddress());
             verify(customerRepository).findById(1L);
         }
 
@@ -85,7 +90,10 @@ class CustomerUseCaseTest {
         @Test
         @DisplayName("Should return all customers")
         void shouldReturnAllCustomers() {
-            List<Customer> customers = List.of(Customer.create(1L), Customer.create(2L));
+            List<Customer> customers = List.of(
+                    Customer.create(1L, "John Doe", "123 Main St"),
+                    Customer.create(2L, "Jane Doe", "456 Oak Ave")
+            );
             when(customerRepository.findAll()).thenReturn(customers);
 
             List<CustomerDTO> result = customerUseCase.getAllCustomers();
@@ -93,7 +101,9 @@ class CustomerUseCaseTest {
             assertNotNull(result);
             assertEquals(2, result.size());
             assertEquals(1L, result.get(0).getId());
+            assertEquals("John Doe", result.get(0).getName());
             assertEquals(2L, result.get(1).getId());
+            assertEquals("Jane Doe", result.get(1).getName());
             verify(customerRepository).findAll();
         }
 
@@ -117,28 +127,32 @@ class CustomerUseCaseTest {
         @Test
         @DisplayName("Should update customer successfully")
         void shouldUpdateCustomerSuccessfully() {
-            Customer updated = Customer.create(1L);
-            when(customerRepository.existsById(1L)).thenReturn(true);
+            Customer existing = Customer.create(1L, "John Doe", "123 Main St");
+            Customer updated = Customer.create(1L, "John Updated", "789 New Ave");
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(existing));
             when(customerRepository.update(any(Customer.class))).thenReturn(updated);
 
-            CustomerDTO result = customerUseCase.updateCustomer(1L, new CustomerDTO());
+            CustomerDTO input = CustomerDTO.builder().name("John Updated").address("789 New Ave").build();
+            CustomerDTO result = customerUseCase.updateCustomer(1L, input);
 
             assertNotNull(result);
             assertEquals(1L, result.getId());
-            verify(customerRepository).existsById(1L);
+            assertEquals("John Updated", result.getName());
+            assertEquals("789 New Ave", result.getAddress());
+            verify(customerRepository).findById(1L);
             verify(customerRepository).update(any(Customer.class));
         }
 
         @Test
         @DisplayName("Should throw exception when customer not found for update")
         void shouldThrowExceptionWhenCustomerNotFoundForUpdate() {
-            when(customerRepository.existsById(99L)).thenReturn(false);
+            when(customerRepository.findById(99L)).thenReturn(Optional.empty());
 
-            RuntimeException exception = assertThrows(RuntimeException.class,
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                     () -> customerUseCase.updateCustomer(99L, new CustomerDTO()));
 
             assertEquals("Customer not found with id: 99", exception.getMessage());
-            verify(customerRepository).existsById(99L);
+            verify(customerRepository).findById(99L);
             verify(customerRepository, never()).update(any());
         }
     }
@@ -164,7 +178,7 @@ class CustomerUseCaseTest {
         void shouldThrowExceptionWhenCustomerNotFoundForDelete() {
             when(customerRepository.existsById(99L)).thenReturn(false);
 
-            RuntimeException exception = assertThrows(RuntimeException.class,
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                     () -> customerUseCase.deleteCustomer(99L));
 
             assertEquals("Customer not found with id: 99", exception.getMessage());

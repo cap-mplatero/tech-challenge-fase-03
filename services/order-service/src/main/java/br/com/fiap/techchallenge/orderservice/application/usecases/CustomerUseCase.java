@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,7 +18,7 @@ public class CustomerUseCase {
     private final CustomerRepository customerRepository;
 
     public CustomerDTO createCustomer(CustomerDTO dto) {
-        Customer customer = Customer.create();
+        Customer customer = Customer.create(dto.getName(), dto.getAddress());
         Customer saved = customerRepository.save(customer);
         return toDTO(saved);
     }
@@ -36,10 +37,20 @@ public class CustomerUseCase {
     }
 
     public CustomerDTO updateCustomer(Long id, CustomerDTO dto) {
-        if (!customerRepository.existsById(id)) {
+        Optional<Customer> customerOptional = customerRepository.findById(id);
+        if (customerOptional.isEmpty()) {
             throw new EntityNotFoundException("Customer not found with id: " + id);
         }
-        Customer customer = Customer.create(id);
+
+        Customer customer = customerOptional.get();
+        if (dto.getName() != null) {
+            customer.setName(dto.getName());
+        }
+
+        if (dto.getAddress() != null) {
+            customer.setAddress(dto.getAddress());
+        }
+
         Customer updated = customerRepository.update(customer);
         return toDTO(updated);
     }
@@ -54,6 +65,8 @@ public class CustomerUseCase {
     private CustomerDTO toDTO(Customer customer) {
         return CustomerDTO.builder()
                 .id(customer.getId())
+                .name(customer.getName())
+                .address(customer.getAddress())
                 .build();
     }
 }

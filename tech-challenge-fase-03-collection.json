@@ -148,7 +148,7 @@
                 "url": { "raw": "{{order_service_url}}/api/customers" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": null\n}"
+                  "raw": "{\n  \"name\": \"João Fontes\",\n  \"address\": \"Av. Paulista, 1000 - São Paulo, SP\"\n}"
                 }
               }
             },
@@ -178,7 +178,7 @@
                 "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": 1\n}"
+                  "raw": "{\n  \"name\": \"João Fontes Atualizado\",\n  \"address\": \"Rua Augusta, 500 - São Paulo, SP\"\n}"
                 }
               }
             },

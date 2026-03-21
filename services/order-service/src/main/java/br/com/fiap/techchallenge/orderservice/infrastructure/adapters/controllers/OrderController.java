@@ -75,7 +75,7 @@ public class OrderController {
     private Long resolveCustomerId(Authentication auth) {
         String externalUserId = (String) auth.getPrincipal();
         Customer customer = customerRepository.findByExternalUserId(externalUserId)
-                .orElseGet(() -> customerRepository.save(Customer.create(null, externalUserId)));
+                .orElseGet(() -> customerRepository.save(Customer.create(null, externalUserId, null, null)));
         return customer.getId();
     }
 }

@@ -60,10 +60,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return CustomerEntity.builder()
                 .id(customer.getId())
                 .externalUserId(customer.getExternalUserId())
+                .name(customer.getName())
+                .address(customer.getAddress())
                 .build();
     }
 
     private Customer toDomain(CustomerEntity entity) {
-        return Customer.create(entity.getId(), entity.getExternalUserId());
+        return Customer.create(entity.getId(), entity.getExternalUserId(), entity.getName(), entity.getAddress());
     }
 }
