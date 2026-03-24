@@ -28,6 +28,9 @@ public class RestaurantEntity {
     @Column(name = "cuisine_type", nullable = false, length = 100)
     private String cuisineType;
 
+    @Column(name = "owner_id")
+    private String ownerId;
+
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<MenuItemEntity> menuItems = new ArrayList<>();

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,9 @@ public class MenuItemController {
     private final MenuItemUseCase menuItemUseCase;
 
     @PostMapping
-    public ResponseEntity<MenuItemDTO> createMenuItem(@RequestBody @Valid MenuItemDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(menuItemUseCase.createMenuItem(dto));
+    public ResponseEntity<MenuItemDTO> createMenuItem(@RequestBody @Valid MenuItemDTO dto, Authentication auth) {
+        String ownerId = (String) auth.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED).body(menuItemUseCase.createMenuItem(dto, ownerId));
     }
 
     @GetMapping("/{id}")
@@ -38,13 +40,15 @@ public class MenuItemController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MenuItemDTO> updateMenuItem(@PathVariable Long id, @RequestBody @Valid MenuItemDTO dto) {
-        return ResponseEntity.ok(menuItemUseCase.updateMenuItem(id, dto));
+    public ResponseEntity<MenuItemDTO> updateMenuItem(@PathVariable Long id, @RequestBody @Valid MenuItemDTO dto, Authentication auth) {
+        String ownerId = (String) auth.getPrincipal();
+        return ResponseEntity.ok(menuItemUseCase.updateMenuItem(id, dto, ownerId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id) {
-        menuItemUseCase.deleteMenuItem(id);
+    public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id, Authentication auth) {
+        String ownerId = (String) auth.getPrincipal();
+        menuItemUseCase.deleteMenuItem(id, ownerId);
         return ResponseEntity.noContent().build();
     }
 }

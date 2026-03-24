@@ -13,6 +13,8 @@ public interface RestaurantRepository {
 
     List<Restaurant> findAll();
 
+    List<Restaurant> findByOwnerId(String ownerId);
+
     Restaurant update(Restaurant restaurant);
 
     void deleteById(Long id);

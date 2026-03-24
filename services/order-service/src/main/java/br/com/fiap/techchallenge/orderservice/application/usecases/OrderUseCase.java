@@ -56,7 +56,7 @@ public class OrderUseCase {
 
     public OrderDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
         return toDTO(order);
     }
 
@@ -87,7 +87,7 @@ public class OrderUseCase {
 
     public OrderDTO updateOrderStatus(Long id, String status) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
 
         Order updatedOrder = Order.create(
                 order.getId(),

@@ -38,6 +38,14 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
     }
 
     @Override
+    public List<Restaurant> findByOwnerId(String ownerId) {
+        return restaurantJpaRepository.findByOwnerId(ownerId)
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Restaurant update(Restaurant restaurant) {
         RestaurantEntity entity = toEntity(restaurant);
         RestaurantEntity updated = restaurantJpaRepository.save(entity);
@@ -60,6 +68,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
                 .name(restaurant.getName())
                 .address(restaurant.getAddress())
                 .cuisineType(restaurant.getCuisineType())
+                .ownerId(restaurant.getOwnerId())
                 .build();
     }
 
@@ -68,7 +77,8 @@ public class RestaurantRepositoryImpl implements RestaurantRepository {
                 entity.getId(),
                 entity.getName(),
                 entity.getAddress(),
-                entity.getCuisineType()
+                entity.getCuisineType(),
+                entity.getOwnerId()
         );
     }
 }

@@ -18,4 +18,5 @@ public class RestaurantDTO {
     private String address;
     @NotBlank
     private String cuisineType;
+    private String ownerId;
 }

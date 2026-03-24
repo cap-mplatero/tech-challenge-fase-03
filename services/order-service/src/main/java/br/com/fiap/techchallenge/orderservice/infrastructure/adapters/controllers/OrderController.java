@@ -2,8 +2,12 @@ package br.com.fiap.techchallenge.orderservice.infrastructure.adapters.controlle
 
 import br.com.fiap.techchallenge.orderservice.application.dtos.OrderDTO;
 import br.com.fiap.techchallenge.orderservice.application.ports.output.CustomerRepository;
+import br.com.fiap.techchallenge.orderservice.application.ports.output.RestaurantRepository;
 import br.com.fiap.techchallenge.orderservice.application.usecases.OrderUseCase;
+import br.com.fiap.techchallenge.orderservice.application.usecases.RestaurantUseCase;
 import br.com.fiap.techchallenge.orderservice.domain.entities.Customer;
+import br.com.fiap.techchallenge.orderservice.domain.entities.Restaurant;
+import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +25,8 @@ public class OrderController {
 
     private final OrderUseCase orderUseCase;
     private final CustomerRepository customerRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final RestaurantUseCase restaurantUseCase;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody @Valid OrderDTO dto, Authentication auth) {
@@ -46,7 +52,11 @@ public class OrderController {
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<List<OrderDTO>> getOrdersByRestaurantId(@PathVariable Long restaurantId) {
+    public ResponseEntity<List<OrderDTO>> getOrdersByRestaurantId(@PathVariable Long restaurantId, Authentication auth) {
+        String ownerId = (String) auth.getPrincipal();
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant not found with id: " + restaurantId));
+        restaurantUseCase.validateOwnership(restaurant, ownerId);
         return ResponseEntity.ok(orderUseCase.getOrdersByRestaurantId(restaurantId));
     }
 
