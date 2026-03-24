@@ -1,5 +1,6 @@
 package br.com.fiap.techchallenge.orderservice.infrastructure.config;
 
+import br.com.fiap.techchallenge.orderservice.domain.exceptions.AccessDeniedException;
 import br.com.fiap.techchallenge.orderservice.domain.exceptions.BusinessException;
 import br.com.fiap.techchallenge.orderservice.domain.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,16 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccessDeniedException(AccessDeniedException ex) {
+        ErrorResponseDTO error = ErrorResponseDTO.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleEntityNotFoundException(EntityNotFoundException ex) {

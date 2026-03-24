@@ -8,12 +8,14 @@
     { "key": "user_service_url", "value": "http://localhost:8081" },
     { "key": "order_service_url", "value": "http://localhost:8080" },
     { "key": "payment_service_url", "value": "http://localhost:8082" },
-    { "key": "auth_token", "value": "" },
+    { "key": "owner_token", "value": "" },
+    { "key": "customer_token", "value": "" },
+    { "key": "admin_token", "value": "" },
     { "key": "user_id", "value": "" },
-    { "key": "customer_id", "value": "1" },
-    { "key": "restaurant_id", "value": "1" },
-    { "key": "menu_item_id", "value": "1" },
-    { "key": "order_id", "value": "1" }
+    { "key": "customer_id", "value": "" },
+    { "key": "restaurant_id", "value": "" },
+    { "key": "menu_item_id", "value": "" },
+    { "key": "order_id", "value": "" }
   ],
   "item": [
     {
@@ -23,59 +25,61 @@
           "name": "Auth",
           "item": [
             {
-              "name": "Register",
+              "name": "Register Customer - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.token) pm.collectionVariables.set('customer_token', json.token);"], "type": "text/javascript" } }],
               "request": {
                 "method": "POST",
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" }
-                ],
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "url": { "raw": "{{user_service_url}}/auth/register" },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"name\": \"João Fontes\",\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_CUSTOMER\"\n}"
-                }
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"João Fontes\",\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_CUSTOMER\"\n}" }
               }
             },
             {
-              "name": "Register Restaurant Owner",
+              "name": "Register Customer - Error (Email duplicado)",
               "request": {
                 "method": "POST",
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" }
-                ],
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "url": { "raw": "{{user_service_url}}/auth/register" },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"name\": \"Dono Restaurante\",\n  \"email\": \"dono@restaurante.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_RESTAURANT_OWNER\"\n}"
-                }
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"João Fontes\",\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_CUSTOMER\"\n}" }
               }
             },
             {
-              "name": "Login",
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "var jsonData = pm.response.json();",
-                      "if (jsonData.token) {",
-                      "  pm.collectionVariables.set('auth_token', jsonData.token);",
-                      "}"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ],
+              "name": "Register Restaurant Owner - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.token) pm.collectionVariables.set('owner_token', json.token);"], "type": "text/javascript" } }],
               "request": {
                 "method": "POST",
-                "header": [
-                  { "key": "Content-Type", "value": "application/json" }
-                ],
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{user_service_url}}/auth/register" },
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Dono Restaurante\",\n  \"email\": \"dono@restaurante.com\",\n  \"password\": \"senha1234\",\n  \"role\": \"ROLE_RESTAURANT_OWNER\"\n}" }
+              }
+            },
+            {
+              "name": "Login Customer - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.token) pm.collectionVariables.set('customer_token', json.token);"], "type": "text/javascript" } }],
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "url": { "raw": "{{user_service_url}}/auth/login" },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\"\n}"
-                }
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha1234\"\n}" }
+              }
+            },
+            {
+              "name": "Login Owner - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["var json = pm.response.json();", "if (json.token) pm.collectionVariables.set('owner_token', json.token);"], "type": "text/javascript" } }],
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{user_service_url}}/auth/login" },
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"dono@restaurante.com\",\n  \"password\": \"senha1234\"\n}" }
+              }
+            },
+            {
+              "name": "Login - Error (Senha incorreta)",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{user_service_url}}/auth/login" },
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"joao@email.com\",\n  \"password\": \"senhaerrada\"\n}" }
               }
             }
           ]
@@ -84,32 +88,36 @@
           "name": "Users",
           "item": [
             {
-              "name": "Get All Users",
+              "name": "Get All Users - Success",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{user_service_url}}/users" }
               }
             },
             {
-              "name": "Get User By ID",
+              "name": "Get User By ID - Success",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{user_service_url}}/users/{{user_id}}" }
               }
             },
             {
-              "name": "Update User",
+              "name": "Get User By ID - Error (Nao encontrado)",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
+                "url": { "raw": "{{user_service_url}}/users/00000000-0000-0000-0000-000000000000" }
+              }
+            },
+            {
+              "name": "Update User - Success",
               "request": {
                 "method": "PUT",
                 "header": [
                   { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{user_service_url}}/users/{{user_id}}" },
                 "body": {
@@ -119,13 +127,34 @@
               }
             },
             {
-              "name": "Delete User",
+              "name": "Update User - Error (Nao encontrado)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
+                ],
+                "url": { "raw": "{{user_service_url}}/users/00000000-0000-0000-0000-000000000000" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Teste\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete User - Success",
               "request": {
                 "method": "DELETE",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{user_service_url}}/users/{{user_id}}" }
+              }
+            },
+            {
+              "name": "Delete User - Error (Nao encontrado)",
+              "request": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
+                "url": { "raw": "{{user_service_url}}/users/00000000-0000-0000-0000-000000000000" }
               }
             }
           ]
@@ -136,14 +165,16 @@
       "name": "Order Service",
       "item": [
         {
-          "name": "Customers",
+          "name": "Customers (Admin)",
           "item": [
             {
-              "name": "Create Customer",
+              "name": "Create Customer - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) {", "  var json = pm.response.json();", "  pm.collectionVariables.set('customer_id', json.id);", "}"], "type": "text/javascript" } }],
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{admin_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/customers" },
                 "body": {
@@ -153,27 +184,59 @@
               }
             },
             {
-              "name": "Get All Customers",
+              "name": "Create Customer - Error (Nome ausente)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/customers" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"address\": \"Rua Sem Nome\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Get All Customers - Success",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/customers" }
               }
             },
             {
-              "name": "Get Customer By ID",
+              "name": "Get All Customers - Error (Owner sem permissao)",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/customers" }
+              }
+            },
+            {
+              "name": "Get Customer By ID - Success",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" }
               }
             },
             {
-              "name": "Update Customer",
+              "name": "Get Customer By ID - Error (Nao encontrado)",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/customers/99999" }
+              }
+            },
+            {
+              "name": "Update Customer - Success",
               "request": {
                 "method": "PUT",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{admin_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" },
                 "body": {
@@ -183,11 +246,34 @@
               }
             },
             {
-              "name": "Delete Customer",
+              "name": "Update Customer - Error (Nao encontrado)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/customers/99999" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Fantasma\",\n  \"address\": \"Rua X\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Customer - Success",
               "request": {
                 "method": "DELETE",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/customers/{{customer_id}}" }
+              }
+            },
+            {
+              "name": "Delete Customer - Error (Nao encontrado)",
+              "request": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/customers/99999" }
               }
             }
           ]
@@ -196,11 +282,13 @@
           "name": "Restaurants",
           "item": [
             {
-              "name": "Create Restaurant",
+              "name": "Create Restaurant - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) {", "  var json = pm.response.json();", "  pm.collectionVariables.set('restaurant_id', json.id);", "}"], "type": "text/javascript" } }],
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/restaurants" },
                 "body": {
@@ -210,27 +298,51 @@
               }
             },
             {
-              "name": "Get All Restaurants",
+              "name": "Create Restaurant - Error (Customer sem permissao)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/restaurants" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Restaurante Proibido\",\n  \"address\": \"Rua X\",\n  \"cuisineType\": \"Japonesa\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Get All Restaurants - Success",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/restaurants" }
               }
             },
             {
-              "name": "Get Restaurant By ID",
+              "name": "Get Restaurant By ID - Success",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" }
               }
             },
             {
-              "name": "Update Restaurant",
+              "name": "Get Restaurant By ID - Error (Nao encontrado)",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/restaurants/99999" }
+              }
+            },
+            {
+              "name": "Update Restaurant - Success",
               "request": {
                 "method": "PUT",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" },
                 "body": {
@@ -240,11 +352,34 @@
               }
             },
             {
-              "name": "Delete Restaurant",
+              "name": "Update Restaurant - Error (Nao e dono)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Tentativa\",\n  \"address\": \"Rua X\",\n  \"cuisineType\": \"Japonesa\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Restaurant - Success",
               "request": {
                 "method": "DELETE",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/restaurants/{{restaurant_id}}" }
+              }
+            },
+            {
+              "name": "Delete Restaurant - Error (Nao encontrado)",
+              "request": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/restaurants/99999" }
               }
             }
           ]
@@ -253,91 +388,142 @@
           "name": "Menu Items",
           "item": [
             {
-              "name": "Create Menu Item",
+              "name": "Create Menu Item - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) {", "  var json = pm.response.json();", "  pm.collectionVariables.set('menu_item_id', json.id);", "}"], "type": "text/javascript" } }],
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/menu-items" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Feijoada Completa\",\n  \"price\": 45.90\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Feijoada Completa\",\n  \"price\": 45.90\n}"
                 }
               }
             },
             {
-              "name": "Create Menu Item 2",
+              "name": "Create Menu Item 2 - Success",
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/menu-items" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Picanha na Brasa\",\n  \"price\": 69.90\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Picanha na Brasa\",\n  \"price\": 69.90\n}"
                 }
               }
             },
             {
-              "name": "Create Menu Item 3",
+              "name": "Create Menu Item 3 - Success",
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/menu-items" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Suco de Laranja Natural\",\n  \"price\": 12.00\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Suco de Laranja Natural\",\n  \"price\": 12.00\n}"
                 }
               }
             },
             {
-              "name": "Get All Menu Items",
+              "name": "Create Menu Item - Error (Restaurante inexistente)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/menu-items" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 99999,\n  \"name\": \"Item Fantasma\",\n  \"price\": 10.00\n}"
+                }
+              }
+            },
+            {
+              "name": "Get All Menu Items - Success",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/menu-items" }
               }
             },
             {
-              "name": "Get Menu Item By ID",
+              "name": "Get Menu Item By ID - Success",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" }
               }
             },
             {
-              "name": "Get Menu Items By Restaurant",
+              "name": "Get Menu Item By ID - Error (Nao encontrado)",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/99999" }
+              }
+            },
+            {
+              "name": "Get Menu Items By Restaurant - Success",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/menu-items/restaurant/{{restaurant_id}}" }
               }
             },
             {
-              "name": "Update Menu Item",
+              "name": "Update Menu Item - Success",
               "request": {
                 "method": "PUT",
                 "header": [
-                  { "key": "Content-Type", "value": "application/json" }
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": 1,\n  \"name\": \"Feijoada Premium\",\n  \"price\": 55.90\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Feijoada Premium\",\n  \"price\": 55.90\n}"
                 }
               }
             },
             {
-              "name": "Delete Menu Item",
+              "name": "Update Menu Item - Error (Nao e dono)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"name\": \"Tentativa\",\n  \"price\": 10.00\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Menu Item - Success",
               "request": {
                 "method": "DELETE",
-                "header": [],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/menu-items/{{menu_item_id}}" }
+              }
+            },
+            {
+              "name": "Delete Menu Item - Error (Nao encontrado)",
+              "request": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/menu-items/99999" }
               }
             }
           ]
@@ -346,82 +532,106 @@
           "name": "Orders",
           "item": [
             {
-              "name": "Create Order",
+              "name": "Create Order - Success",
+              "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) {", "  var json = pm.response.json();", "  pm.collectionVariables.set('order_id', json.id);", "}"], "type": "text/javascript" } }],
               "request": {
                 "method": "POST",
                 "header": [
                   { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                  { "key": "Authorization", "value": "Bearer {{customer_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/orders" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": 1,\n  \"menuItemQuantities\": {\n    \"1\": 2,\n    \"2\": 1,\n    \"3\": 3\n  }\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"menuItemQuantities\": {\n    \"{{menu_item_id}}\": 2\n  }\n}"
                 }
               }
             },
             {
-              "name": "Get Order By ID",
+              "name": "Create Order - Error (Restaurante inexistente)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": 99999,\n  \"menuItemQuantities\": {\n    \"1\": 1\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Get Order By ID - Success",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}" }
               }
             },
             {
-              "name": "Get My Orders",
+              "name": "Get Order By ID - Error (Nao encontrado)",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/orders/99999" }
+              }
+            },
+            {
+              "name": "Get My Orders - Success",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/orders" }
               }
             },
             {
-              "name": "Get Orders By Status",
+              "name": "Get Orders By Status - Success",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/orders/status/PENDING" }
               }
             },
             {
-              "name": "Get Orders By Restaurant",
+              "name": "Get Orders By Restaurant - Success (Owner)",
               "request": {
                 "method": "GET",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{owner_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/orders/restaurant/{{restaurant_id}}" }
               }
             },
             {
-              "name": "Update Order",
+              "name": "Get Orders By Restaurant - Error (Nao e dono)",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/orders/restaurant/{{restaurant_id}}" }
+              }
+            },
+            {
+              "name": "Update Order - Success",
               "request": {
                 "method": "PUT",
                 "header": [
                   { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                  { "key": "Authorization", "value": "Bearer {{customer_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}" },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"restaurantId\": 1,\n  \"menuItemQuantities\": {\n    \"1\": 1,\n    \"3\": 2\n  }\n}"
+                  "raw": "{\n  \"restaurantId\": {{restaurant_id}},\n  \"menuItemQuantities\": {\n    \"{{menu_item_id}}\": 3\n  }\n}"
                 }
               }
             },
             {
-              "name": "Update Order Status",
+              "name": "Update Order Status - Success (Owner)",
               "request": {
                 "method": "PATCH",
                 "header": [
                   { "key": "Content-Type", "value": "application/json" },
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
                 ],
                 "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}/status" },
                 "body": {
@@ -431,13 +641,34 @@
               }
             },
             {
-              "name": "Delete Order",
+              "name": "Update Order Status - Error (Status vazio)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" },
+                  { "key": "Authorization", "value": "Bearer {{owner_token}}" }
+                ],
+                "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}/status" },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete Order - Success",
               "request": {
                 "method": "DELETE",
-                "header": [
-                  { "key": "Authorization", "value": "Bearer {{auth_token}}" }
-                ],
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
                 "url": { "raw": "{{order_service_url}}/api/orders/{{order_id}}" }
+              }
+            },
+            {
+              "name": "Delete Order - Error (Nao encontrado)",
+              "request": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }],
+                "url": { "raw": "{{order_service_url}}/api/orders/99999" }
               }
             }
           ]
@@ -448,7 +679,22 @@
       "name": "Payment Service",
       "item": [
         {
-          "name": "Process Payment",
+          "name": "Process Payment - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+            ],
+            "url": { "raw": "{{payment_service_url}}/api/payments" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"PAY-001\",\n  \"orderId\": \"{{order_id}}\",\n  \"amount\": 161.70\n}"
+            }
+          }
+        },
+        {
+          "name": "Process Payment - Error (Sem autenticacao)",
           "request": {
             "method": "POST",
             "header": [
@@ -457,7 +703,7 @@
             "url": { "raw": "{{payment_service_url}}/api/payments" },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"paymentId\": \"PAY-001\",\n  \"orderId\": \"1\",\n  \"amount\": 161.70\n}"
+              "raw": "{\n  \"paymentId\": \"PAY-002\",\n  \"orderId\": \"1\",\n  \"amount\": 50.00\n}"
             }
           }
         }

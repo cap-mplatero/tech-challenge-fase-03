@@ -25,7 +25,7 @@ public class CustomerUseCase {
 
     public CustomerDTO getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
         return toDTO(customer);
     }
 

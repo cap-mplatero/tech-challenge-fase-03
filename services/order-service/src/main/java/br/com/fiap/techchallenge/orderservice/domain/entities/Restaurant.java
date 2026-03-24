@@ -13,12 +13,21 @@ public class Restaurant {
     private String name;
     private String address;
     private String cuisineType;
+    private String ownerId;
 
     public static Restaurant create(String name, String address, String cuisineType) {
-        return Restaurant.create(null, name, address, cuisineType);
+        return Restaurant.create(null, name, address, cuisineType, null);
     }
 
     public static Restaurant create(Long id, String name, String address, String cuisineType) {
+        return Restaurant.create(id, name, address, cuisineType, null);
+    }
+
+    public static Restaurant create(String name, String address, String cuisineType, String ownerId) {
+        return Restaurant.create(null, name, address, cuisineType, ownerId);
+    }
+
+    public static Restaurant create(Long id, String name, String address, String cuisineType, String ownerId) {
         validateRestaurant(name, address, cuisineType);
 
         Restaurant restaurant = new Restaurant();
@@ -26,6 +35,7 @@ public class Restaurant {
         restaurant.setName(name);
         restaurant.setAddress(address);
         restaurant.setCuisineType(cuisineType);
+        restaurant.setOwnerId(ownerId);
 
         return restaurant;
     }
