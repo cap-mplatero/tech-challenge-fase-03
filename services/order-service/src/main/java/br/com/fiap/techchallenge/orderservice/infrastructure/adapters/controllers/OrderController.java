@@ -71,7 +71,7 @@ public class OrderController {
     public ResponseEntity<OrderDTO> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
         String status = body.get("status");
         if (status == null || status.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            throw new IllegalArgumentException("Status is required");
         }
         return ResponseEntity.ok(orderUseCase.updateOrderStatus(id, status));
     }

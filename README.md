@@ -67,6 +67,7 @@ cd services/payment-service && mvn spring-boot:run
 | user-service | 8081 | http://localhost:8081/swagger-ui.html |
 | order-service | 8080 | http://localhost:8080/swagger-ui.html |
 | payment-service | 8082 | http://localhost:8082/swagger-ui.html |
+| procpag (externo) | 8089 | http://localhost:8089/openapi.yml |
 
 ## Segurança e Roles
 
@@ -109,11 +110,14 @@ Cada restaurante é vinculado ao seu dono via `ownerId` (extraído do JWT). Dono
 
 ### payment-service (`:8082`)
 
-| Método | Rota | Descrição | Auth |
-|--------|------|-----------|------|
-| POST | `/api/payments` | Processar pagamento | Sim |
+Não expõe endpoints REST. Funciona 100% via Kafka:
+- Consome `pedido.criado` → chama processador externo de pagamento (`procpag:8089`)
+- Publica `pagamento.aprovado` ou `pagamento.pendente`
+- Scheduler reprocessa pagamentos pendentes automaticamente
 
-Pagamentos também são processados automaticamente via Kafka.
+### procpag — Processador de Pagamento Externo (`:8089`)
+
+Serviço fornecido pelos professores (`erickemprobr/procpag:latest`). Eventualmente disponível — simula um processador de pagamento externo. Documentação em http://localhost:8089/openapi.yml
 
 ## Fluxo Kafka
 
